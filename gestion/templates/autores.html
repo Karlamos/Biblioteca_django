@@ -1,0 +1,65 @@
+{% extends "index.html"%}
+{% block contenido %}
+
+<!-- Seccion de autores -->
+
+<style>
+    /* Estilo para que todas las biografías en las tarjetas tengan una altura uniforme */
+    .bio-text-scroll {
+        max-height: 120px; /* Altura fija para la sección de la biografía */
+        overflow-y: auto; /* Habilita el desplazamiento vertical si el texto es largo */
+        margin-bottom: 15px;
+        padding-right: 5px; /* Pequeño padding para que la barra de scroll no toque el texto */
+    }
+
+    /* Definición de colores (Asegura que estas variables existan en el CSS principal) */
+    :root {
+        --morado-fuerte: #8A2BE2; /* Azul Violeta */
+        --morado-claro: #9370DB;  /* Morado Medio */
+    }
+    
+    /* Pequeño ajuste visual para la tarjeta */
+    .card-custom {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .card-custom:hover {
+        transform: translateY(-5px); /* Efecto sutil al pasar el ratón */
+        box-shadow: 0 0.5rem 1rem rgba(138, 43, 226, 0.4) !important; /* Sombra morada */
+    }
+</style>
+
+<h2 class="mb-5" style="color: var(--morado-fuerte);">👤 **Autores Destacados**</h2>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for autor in autores %}
+    <div class="col">
+        <div class="card h-100 card-custom shadow">
+            <div class="card-body d-flex flex-column">
+                
+                <h4 class="card-title text-capitalize mb-1">
+                    <span class="fw-bold" style="color: var(--morado-fuerte);">
+                        {{ autor.nombre }}
+                    </span> 
+                    <span class="fw-bold" style="color: var(--morado-claro);">
+                        {{ autor.apellido }}
+                    </span>
+                </h4>
+                
+                <h6 class="card-subtitle mb-3 text-muted small" style="color: var(--morado-claro) !important;">
+                    <small>Autor ID: #{{ loop.index }}</small>
+                </h6>
+                
+                <div class="bio-text-scroll small text-white-75" style="color: var(--morado-claro)">
+                    <p class="mb-0">{{ autor.bibliografia }}</p>
+                </div>
+                
+                <div class="mt-auto pt-3">
+                    <a href="#" class="btn btn-sm btn-purple w-100">Ver Libros ({{ autor.nombre }})</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
