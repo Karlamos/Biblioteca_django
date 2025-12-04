@@ -14,7 +14,7 @@ class Autor(models.Model):
     
 class Libro(models.Model):
     titulo= models.CharField(max_length=20)
-    Autor=models.ForeignKey(Autor, related_name="libros", on_delete=models.PROTECT)
+    autor=models.ForeignKey(Autor, related_name="libros", on_delete=models.PROTECT)
     disponible=models.BooleanField(default=True)
     
     def __str__(self):

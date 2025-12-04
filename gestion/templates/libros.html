@@ -1,0 +1,119 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+
+
+<style>
+    /* * VARIABLES CSS: Asegura que los colores 'morado-fuerte' y 'morado-claro'
+     * coincidan con los estilos de tu aplicación. 
+     */
+    :root {
+        --morado-fuerte: #8A2BE2; /* Blue Violet */
+        --morado-claro: #9370DB;  /* Medium Purple */
+        --verde-disponible: #28a745; /* Verde Bootstrap */
+        --rojo-agotado: #dc3545;     /* Rojo Bootstrap */
+    }
+    
+    /* Estilo para que todas las descripciones en las tarjetas tengan una altura uniforme */
+    .desc-text-scroll {
+        max-height: 90px; /* Altura fija para la sección de la descripción */
+        overflow-y: auto; /* Habilita el desplazamiento vertical si el texto es largo */
+        margin-bottom: 15px;
+        /* Padding para evitar que la barra de scroll se pegue al texto */
+        padding-right: 10px; 
+    }
+
+    /* Estilos personalizados para el efecto hover de la tarjeta */
+    .card-custom {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(138, 43, 226, 0.1); /* Borde sutil */
+    }
+    .card-custom:hover {
+        transform: translateY(-8px); /* Efecto sutil al pasar el ratón */
+        box-shadow: 0 0.75rem 1.5rem rgba(138, 43, 226, 0.5) !important; /* Sombra morada más intensa */
+    }
+    
+    /* Estilo para el botón (asume que btn-purple está definido) */
+    .btn-purple {
+        background-color: var(--morado-fuerte);
+        border-color: var(--morado-fuerte);
+        color: white;
+    }
+    .btn-purple:hover {
+        background-color: var(--morado-claro);
+        border-color: var(--morado-claro);
+    }
+    
+    /* Estilos para el indicador de disponibilidad */
+    .badge-disponible {
+        background-color: var(--verde-disponible);
+        color: white;
+    }
+    .badge-agotado {
+        background-color: var(--rojo-agotado);
+        color: white;
+    }
+</style>
+
+<h2 class="mb-5 display-5 fw-light" style="color: var(--morado-fuerte);">
+    📚 Catálogo de **Libros**
+</h2>
+<p class="text-secondary mb-4">Inventario completo de los títulos disponibles y sus detalles en la biblioteca.</p>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    
+    {% for libro in libros %}
+    <div class="col">
+        <div class="card h-100 card-custom shadow-lg">
+            <div class="card-body d-flex flex-column">
+                
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold text-capitalize me-3" style="color: var(--morado-fuerte);">
+                        {{ libro.titulo }}
+                    </h5>
+                    <span class="badge rounded-pill {% if libro.copias_disponibles > 0 %}badge-disponible{% else %}badge-agotado{% endif %} flex-shrink-0">
+                        {% if libro.copias_disponibles > 0 %}
+                            {{ libro.copias_disponibles }} Disponibles
+                        {% else %}
+                            Agotado
+                        {% endif %}
+                    </span>
+                </div>
+                
+                <h6 class="card-subtitle mb-2 text-muted small">
+                    <span class="fw-semibold">Autor:</span> {{ libro.autor.nombre }} {{ libro.autor.apellido }}
+                </h6>
+                <h6 class="card-subtitle mb-3 text-muted small">
+                    <span class="fw-semibold">ISBN:</span> {{ libro.isbn }}
+                </h6>
+                
+                <div class="mt-auto pt-3">
+                    {% if libro.copias_disponibles > 0 %}
+                    <a href="/libros/{{ libro.id }}/prestar" class="btn btn-sm btn-purple w-100">
+                        Realizar Préstamo
+                    </a>
+                    {% else %}
+                    <button class="btn btn-sm btn-secondary w-100" disabled>
+                        No Disponible
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="col">
+        <div class="card h-100 bg-light border-dashed d-flex align-items-center justify-content-center">
+            <div class="card-body text-center">
+                <h5 class="card-title text-muted">Añadir Nuevo Título</h5>
+                <a href="/libros/crear" class="btn btn-outline-secondary mt-3">
+                    ➕ Registrar Libro
+                </a>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}
+

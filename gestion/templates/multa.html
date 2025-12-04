@@ -1,0 +1,117 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+<style>
+    /* * VARIABLES CSS: Asegura que los colores 'morado-fuerte' y 'morado-claro'
+     * coincidan con los estilos de tu aplicación. 
+     */
+    :root {
+        --morado-fuerte: #8A2BE2; /* Blue Violet */
+        --morado-claro: #9370DB;  /* Medium Purple */
+        --amarillo-pendiente: #ffc107; /* Amarillo de Bootstrap para pendiente */
+        --verde-pagado: #28a745;     /* Verde para pagado */
+    }
+    
+    /* Estilo para notas o detalles de la multa */
+    .detail-text-scroll {
+        max-height: 60px; /* Altura fija para la sección de detalles/notas */
+        overflow-y: auto; 
+        margin-bottom: 15px;
+        padding-right: 10px; 
+    }
+
+    /* Estilos personalizados para el efecto hover de la tarjeta */
+    .card-custom {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 1px solid rgba(138, 43, 226, 0.1); 
+    }
+    .card-custom:hover {
+        transform: translateY(-8px); 
+        box-shadow: 0 0.75rem 1.5rem rgba(138, 43, 226, 0.5) !important; 
+    }
+    
+    /* Estilo para el botón */
+    .btn-purple {
+        background-color: var(--morado-fuerte);
+        border-color: var(--morado-fuerte);
+        color: white;
+    }
+    .btn-purple:hover {
+        background-color: var(--morado-claro);
+        border-color: var(--morado-claro);
+    }
+    
+    /* Estilos para el indicador de estado */
+    .badge-pendiente {
+        background-color: var(--amarillo-pendiente);
+        color: #343a40; /* Texto oscuro */
+    }
+    .badge-pagado {
+        background-color: var(--verde-pagado);
+        color: white;
+    }
+</style>
+
+<h2 class="mb-5 display-5 fw-light" style="color: var(--morado-fuerte);">
+    🚨 Gestión de **Multas**
+</h2>
+<p class="text-secondary mb-4">Listado de las penalizaciones aplicadas por retraso en la devolución de préstamos.</p>
+
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    
+    {% for multa in multas %}
+    <div class="col">
+        <div class="card h-100 card-custom shadow-lg">
+            <div class="card-body d-flex flex-column">
+                
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="card-title fw-bold text-capitalize me-3" style="color: var(--morado-fuerte);">
+                        $ {{ multa.monto | numberformat('2', ',') }}
+                    </h5>
+                    <span class="badge rounded-pill {% if multa.estado == 'Pendiente' %}badge-pendiente{% else %}badge-pagado{% endif %} flex-shrink-0">
+                        {{ multa.estado }}
+                    </span>
+                </div>
+                
+                <h6 class="card-subtitle mb-2 text-muted small">
+                    <span class="fw-semibold">Usuario:</span> {{ multa.usuario.nombre }} {{ multa.usuario.apellido }}
+                </h6>
+                <h6 class="card-subtitle mb-3 text-muted small">
+                    <span class="fw-semibold">Fecha Emisión:</span> {{ multa.fecha_emision | date('d/m/Y') }}
+                </h6>
+
+                <div class="detail-text-scroll small text-dark">
+                    <p class="mb-0">
+                        <span class="fw-semibold">Motivo:</span> {{ multa.motivo | default("Retraso en devolución.") }}
+                    </p>
+                </div>
+                
+                <div class="mt-auto pt-3">
+                    {% if multa.estado == 'Pendiente' %}
+                    <a href="/multas/{{ multa.id }}/pagar" class="btn btn-sm btn-purple w-100">
+                        Marcar como Pagada
+                    </a>
+                    {% else %}
+                    <a href="/multas/{{ multa.id }}/detalle" class="btn btn-sm btn-outline-secondary w-100">
+                        Ver Detalles
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <div class="col">
+        <div class="card h-100 bg-light border-dashed d-flex align-items-center justify-content-center">
+            <div class="card-body text-center">
+                <h5 class="card-title text-muted">Configurar Reglas</h5>
+                <a href="/configuracion/multas" class="btn btn-outline-secondary mt-3">
+                    ⚙️ Ajustar Sanciones
+                </a>
+            </div>
+        </div>
+    </div>
+    
+</div>
+
+{% endblock %}

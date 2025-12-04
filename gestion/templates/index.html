@@ -78,16 +78,15 @@
     <div class="sidebar">
         <div class="menu-title">📚 Biblioteca</div>
 
-        <a href="#autores">Autores</a>
-        <a href="#prestamos">Préstamos</a>
-        <a href="#multas">Multas</a>
-        <a href="#libros">Libros</a>
+        <a href="{% url 'lista_autores'%}">Autores</a>
+        <a href="{% url 'lista_prestamos' %}">Préstamos</a>
+        <a href="{% url 'lista_multa' %}">Multas</a>
+        <a href="{% url 'lista_libros' %}">Libros</a>
     </div>
 
     <!-- CONTENIDO -->
     <div class="content">
         <h1 class="mb-4" style="color: #caa5ff;">Dashboard de Biblioteca</h1>
-        <p class="text-secondary">Panel de control moderno con diseño oscuro minimalista.</p>
 
         {% block contenido %}
         {% endblock %}

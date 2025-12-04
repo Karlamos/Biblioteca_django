@@ -1,0 +1,24 @@
+{% extends "index.html"%}
+{% block contenido %}
+
+<h2> Crear prestamos </h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <label for="id_titulo" name="titulo"> Libro: </label>
+    <select id="id_titulo" name="id_titulo" required>
+        <option value="">-- Seleccione un libro --</option>
+        {%for libro in libros%}
+        <option value="{{libro.id}}">
+            {{libro.titulo}}
+        </option>
+        {%endfor%}
+    </select>
+
+    
+
+    <button type="submit">Guardar</button>
+
+</form>
+
+{% endblock %}
