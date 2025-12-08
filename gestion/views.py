@@ -24,38 +24,72 @@ def crear_libro(request):
             return redirect('lista_libros')
     return render(request, 'gestion/templates/crear_libros.html',{'autores':autores})
 
+
+def editar_autores_old(request, id):
+    autor=get_object_or_404(Autor,id=id)
+    if request.method == 'POST':
+        nombre= request.POST.get('nombre')
+        apellido= request.POST.get('apellido')
+        bibliografia=request.POST.get('bibliografia')
+        
+        if nombre and apellido:
+            autor.apellido = apellido
+            autor.nombre = nombre
+            autor.bibliografia = bibliografia
+            autor.save()
+            return redirect('lista_autores')      
+    return render(request, 'gestion/templates/editar_autores.html',{'autor' : autor})  
+        
 def lista_autores(request):
     autores =Autor.objects.all()
     return render(request, 'gestion/templates/autores.html',{'autores': autores})
 
-def crear_autores(request):
+def crear_autores(request, id=None):
+    if id==None:
+        autor=None
+        modo='Crear'
+    else:
+        autor=get_object_or_404(Autor,id=id)
+        modo='editar'
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         apellido = request.POST.get('apellido')
         bibliografia = request.POST.get('bibliografia')
-        Autor.objects.create(nombre=nombre, apellido=apellido, bibliografia=bibliografia)
+        if autor== None:
+            Autor.objects.create(nombre=nombre, apellido=apellido, bibliografia=bibliografia)
+        else:
+            autor.apellido = apellido
+            autor.nombre = nombre
+            autor.bibliografia = bibliografia
+            autor.save()
         return redirect(lista_autores)
-    return render(request,'gestion/templates/crear_autores.html',)
+    context ={'autor':autor,
+              'titulo': 'Editar Autor' if modo == 'editar' else 'Crear Autor',
+              'texto_boton':'Guardar cambios' if modo == 'editar' else 'Crear'}
+    return render(request,'gestion/templates/crear_autores.html', context)
 
 def lista_prestamos(request):
     prestamos =Prestamo.objects.all()
     return render(request, 'gestion/templates/prestamos.html',{'prestamos': prestamos}) 
 
 def crear_prestamos(request):
-    libro = Libro.objects.all()
+    libro = Libro.objects.filter(disponible=True)
+    usuario=User.objects.all()
     if request.method == 'POST':
         libro_id= request.POST.get('titulo')
         usuario_id = request.POST.get('usuario')
-        fecha_prestamos = request.POST.get('fecha_prestamos')
-        fecha_max = request.POST.get('fecha_max')
-        fecha_devol = request.POST.get('fecha_devol')
-        if libro_id and usuario_id:
+        fecha_prestamo = request.POST.get('fecha_prestamo')
+        if libro_id and usuario_id and fecha_prestamo:
             libro = get_object_or_404(Libro, id=libro_id)
             usuario=get_object_or_404(User, id=usuario_id)
-            Prestamo.objects.create(libro=libro,usuario=usuario,fecha_prestamos=fecha_prestamos,fecha_max=fecha_max,fecha_devol=fecha_devol)
-            return redirect('lista_prestamos')
-        
-    return render(request,'gestion/templates/crear_prestamos.html',)
+            prestamo=Prestamo.objects.create(libro=libro,
+                                             usuario=usuario,
+                                             fecha_prestamo=fecha_prestamo)
+            libro.disponible = False
+            libro.save()
+            return redirect('detalle_prestamos', id=prestamo.id)
+    fecha=(timezone.now().date()).isoformat()   
+    return render(request,'gestion/templates/crear_prestamos.html', {'libros':libro, 'usuario':usuario, 'fecha':timezone.now})
 
 def detalle_prestamo(request):
     pass
@@ -68,5 +102,3 @@ def crear_multa(request):
     pass
 
 
-
-# Create your views here.

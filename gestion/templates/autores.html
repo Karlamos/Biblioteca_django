@@ -52,6 +52,9 @@
                 <div class="bio-text-scroll small text-white-75" style="color: var(--morado-claro)">
                     <p class="mb-0">{{ autor.bibliografia }}</p>
                 </div>
+                <td>
+                    <a href="{% url 'editar_autores' autor.id%}" >Editar</a>
+                </td>
                 
                 <div class="mt-auto pt-3">
                     <a href="#" class="btn btn-sm btn-purple w-100">Ver Libros ({{ autor.nombre }})</a>
