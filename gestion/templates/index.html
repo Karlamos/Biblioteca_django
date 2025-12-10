@@ -82,6 +82,40 @@
         <a href="{% url 'lista_prestamos' %}">Préstamos</a>
         <a href="{% url 'lista_multa' %}">Multas</a>
         <a href="{% url 'lista_libros' %}">Libros</a>
+        {% if not user.is_authenticated %}
+    <a href="{% url 'login' %}" 
+       style="display: block; padding: 10px 15px; text-decoration: none; color: inherit;">
+        Ingresar
+    </a>
+{% endif %}
+    
+{% if user.is_authenticated %}
+    <form method="POST" action="{% url 'logout' %}" style="margin: 0;">
+        {% csrf_token %}
+        
+        <button type="submit" 
+                style="
+                    /* Propiedades para hacerlo invisible como botón y visible como enlace */
+                    background: none;        /* Fondo transparente */
+                    border: none;            /* Sin borde */
+                    text-decoration: none;   /* Sin subrayado */
+                    
+                    /* Propiedades para que actúe como un enlace de menú */
+                    display: block;          /* Ocupa todo el ancho */
+                    width: 100%;             /* 100% de ancho */
+                    cursor: pointer;         /* Cursor de mano al pasar por encima */
+                    text-align: left;        /* Alineación a la izquierda */
+                    
+                    /* Propiedades de estilo (Asegúrate de que el padding y color coincidan) */
+                    padding: 10px 15px;      /* **IMPORTANTE: Mismo padding que 'Ingresar' y otros <a>** */
+                    color: inherit;          /* Hereda el color del texto */
+                    font-size: 16px;         /* Tamaño de la fuente (ajusta si es necesario) */
+                ">
+            Cerrar Sesión
+        </button>
+    </form>
+{% endif %}
+        
     </div>
 
     <!-- CONTENIDO -->

@@ -27,6 +27,13 @@ class Prestamo(models.Model):
     fecha_max= models.DateField()
     fecha_devol=models.DateField(blank=True, null=True)
     
+    class Meta:
+        permissions =(
+            ("Ver_prestamo","Puede ver el prestamo"),
+            ("gestionar_prestamos","Puede gestionar prestamos"),
+            
+        )
+    
     def __str__(self):
         return f"prestamo de {self,Libro} a {self.usuario}"
     
