@@ -1,13 +1,47 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from .models import Autor,Libro,Prestamo,multa
 from django.conf import settings
 from django.http import HttpResponseForbidden
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
+from django.views.generic import ListView, CreateView, UpdateView,DeleteView, DetailView
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.urls import reverse_lazy
 
+class LibroListView(LoginRequiredMixin, ListView):
+    model = Libro
+    template_name = 'gestion/templates/libros_view.html'
+    context_object_name= 'libros'
+    paginate_by= 10 
+
+class LibroDetalleView(LoginRequiredMixin, DetailView):
+    model = Libro
+    template_name = 'gestion/templates/detalle_libros.html'
+    context_object_name= 'libro'
+
+class LibroCreateView(LoginRequiredMixin,PermissionRequiredMixin,CreateView):
+    model = Libro 
+    fields=['titulo','autor','disponible']
+    template_name='gestion/templates/crear_libros.html'
+    success_url= reverse_lazy('libro_list')
+    permission_required='gestion.add_libro'
+    
+class LibroUpdateView(LoginRequiredMixin,PermissionRequiredMixin,UpdateView):
+    model = Libro 
+    fields=['titulo','autor']
+    template_name='gestion/templates/editar_libros.html'
+    success_url= reverse_lazy('libro_list')
+    permission_required='gestion.change_libro'
+    
+class LibroDeleteView(LoginRequiredMixin, PermissionRequiredMixin,DeleteView):
+    model = Libro 
+    template_name='gestion/templates/delete_libros.html'
+    success_url= reverse_lazy('libro_list')
+    permission_required='gestion.delete_libro'
+    
 def index(request):
     title = settings.TITLE
     return render(request,'gestion/templates/home.html', {'titulo':title})
@@ -96,7 +130,7 @@ def crear_prestamos(request):
             libro.save()
             return redirect('detalle_prestamos', id=prestamo.id)
     fecha=(timezone.now().date()).isoformat()   
-    return render(request,'gestion/templates/crear_prestamos.html', {'libros':libro, 'usuario':usuario, 'fecha':timezone.now})
+    return render(request,'gestion/templates/crear_prestamos.html', {'libros':libro, 'usuarios':usuario, 'fecha':timezone.now})
 
 def detalle_prestamo(request):
     pass
