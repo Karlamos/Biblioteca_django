@@ -18,7 +18,7 @@ class Libro(models.Model):
     disponible=models.BooleanField(default=True)
     
     def __str__(self):
-      return self.titulo
+      return f"{self.titulo}"
 
 class Prestamo(models.Model):
     libro = models.ForeignKey(Libro, related_name="prestamos", on_delete=models.PROTECT)
@@ -43,6 +43,8 @@ class Prestamo(models.Model):
         fecha_ref = self.fecha_devol or hoy
         if fecha_ref > self.fecha_max:
             return (fecha_ref - self.fecha_devol).days
+        else: 
+            return 0
         
     @property
     def multa_retraso(self):
