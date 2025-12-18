@@ -15,3 +15,4 @@ class ListaLibroViewTest(TestCase):
         self.assertEqual(resp.status_code, 200)
         self.assertTemplateUsed(resp,'gestion/templates/libros.html')
         self.assertEqual(len(resp.context['libros']), 3)
+        

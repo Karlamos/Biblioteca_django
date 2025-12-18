@@ -2,6 +2,8 @@ from django.test import TestCase
 from gestion.models import Autor, Libro, Prestamo
 from django.contrib.auth.models import User
 from django.utils import timezone
+from django.urls import reverse
+
 
 class LibroModelTest(TestCase):
     @classmethod
@@ -30,3 +32,18 @@ class PrestamoModelTest(TestCase):
         if self.prestamo.dias_retraso > 0:
             self.assertGreater(self.prestamo.multa_retraso, 0)
         
+        
+class PrestamoUsuarioViewTest(TestCase):
+    def setUp(self):
+        self.user1 = User.objects.create_user('u1', password='test12345')
+        self.user2 = User.objects.create_user('u2', password='test12345')
+        
+    def test_redirige_no_login(self):
+        resp = self.client.get(reverse('crear_autor'))
+        self.assertEqual(resp.status_code, 302)
+        
+    def test_carga_login(self):
+        resp= self.client.login(username="u1", password='test12345')
+        self.assertEqual(resp.status_code, 200)
+        resp1=self.client.get(reverse('crear_autores'))
+        self.assertEqual(resp1.status_code, 200)
