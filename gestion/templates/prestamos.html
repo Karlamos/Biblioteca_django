@@ -111,7 +111,6 @@
     <p class="text-muted fst-italic mb-4">Control de salida y entrada de ejemplares del catálogo.</p>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-        <p>Total de préstamos encontrados: {{ prestamos|length }}</p>
         {% for prestamo in prestamos %}
         <div class="col">
             <div class="card h-100 card-ficha p-3">
@@ -128,18 +127,18 @@
                     
                     <div class="info-manuscrita">
                         <span class="label-maquina">Usuario encargado:</span><br>
-                        {{ prestamo.usuario.nombre }} {{ prestamo.usuario.apellido }}
+                        {{ prestamo.usuario.username }}
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-6">
                             <span class="label-maquina">Salida:</span><br>
-                            {{ prestamo.fecha_prestamo|date:"d M Y" }}
+                            {{ prestamo.fecha_prestamo_display|date:"d M Y" }}
                         </div>
                         <div class="col-6">
                             <span class="label-maquina">Vencimiento:</span><br>
                             <strong class="{% if prestamo.estado == 'Vencido' %}text-danger{% endif %}">
-                                {{ prestamo.fecha_vencimiento|date:"d M Y" }}
+                                {{ prestamo.fecha_vencimiento_display|date:"d M Y" }}
                             </strong>
                         </div>
                     </div>

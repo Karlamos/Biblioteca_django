@@ -104,7 +104,7 @@
             {% csrf_token %}
             
             <div class="form-group">
-                <label for="id_libro">📖 Seleccionar Obra:</label>
+                <label for="id_libro">📖 Seleccionar Libro:</label>
                 <select id="id_libro" name="libro" class="form-control-biblioteca" required>
                     <option value="" disabled selected>— Elija un título del catálogo —</option>
                     {% for libro in libros %}
@@ -116,7 +116,7 @@
             <div class="form-group">
                 <label for="id_usuario">👤 Identificación del Usuario:</label>
                 <select id="id_usuario" name="usuario" class="form-control-biblioteca" required>
-                    <option value="" disabled selected>— Seleccionar miembro —</option>
+                    <option value="" disabled selected>— Seleccionar usuario —</option>
                     {% for usuario in usuarios %}
                         <option value="{{usuario.id}}">{{usuario.username}}</option>
                     {% endfor %}

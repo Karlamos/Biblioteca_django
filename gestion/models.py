@@ -27,7 +27,7 @@ class Libro(models.Model):
 class Prestamo(models.Model):
     libro = models.ForeignKey(Libro, related_name="prestamos", on_delete=models.PROTECT)
     usuario = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="PRESTAMOS", on_delete=models.PROTECT)
-    fecha_prestamo= models.DateField(default=timezone.now)
+    fecha_prestamos= models.DateField(default=timezone.now)
     fecha_max= models.DateField()
     fecha_devol=models.DateField(blank=True, null=True)
     
