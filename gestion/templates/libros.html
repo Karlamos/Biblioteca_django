@@ -1,0 +1,107 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-viejo: #dcb273;
+        --papel-claro: #fffdfa;
+        --cuero-rojo: #7b241c;
+        --cuero-verde: #1b5e20;
+    }
+
+    .biblioteca-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 3px double var(--dorado-viejo);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+    }
+
+    .card-tomo {
+        background-color: var(--papel-claro);
+        border: 1px solid #e0d7c6;
+        border-left: 12px solid var(--madera-oscura);
+        border-radius: 4px;
+        transition: all 0.4s ease;
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.08);
+        min-height: 250px; /* Asegura un tamaño mínimo */
+    }
+
+    .card-tomo:hover {
+        transform: translateY(-5px);
+        box-shadow: 10px 10px 25px rgba(0,0,0,0.15);
+        border-left-color: var(--dorado-viejo);
+    }
+
+    .card-tomo .card-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        font-weight: 700;
+    }
+
+    .badge-biblioteca {
+        font-family: 'Lora', serif;
+        padding: 5px 10px;
+        border-radius: 2px;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        font-weight: bold;
+    }
+
+    .badge-disponible { background-color: var(--cuero-verde); color: #e8f5e9; }
+    .badge-agotado { background-color: var(--cuero-rojo); color: #fd9a9a; }
+
+    .card-add {
+        border: 2px dashed var(--dorado-viejo) !important;
+        background-color: rgba(220, 178, 115, 0.05);
+        min-height: 250px;
+    }
+</style>
+
+<div class="container-fluid">
+    <h2 class="biblioteca-titulo">📚 Catálogo de Libros</h2>
+    <p class="fst-italic text-muted mb-5">Explore los libros disponibles.</p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for libro in libros %}
+        <div class="col">
+            <div class="card h-100 card-tomo">
+                <div class="card-body d-flex flex-column">
+                    <div class="mb-3">
+                        <small class="text-muted d-block">
+                            <i class="bi bi-person-fill"></i> <strong>Autor:</strong> {{ libro.autor.nombre }} {{ libro.autor.apellido }}
+                        </small>
+                        <small class="text-muted d-block">
+                            <i class="bi bi-calendar3"></i> <strong>Publicación:</strong> {{ libro.anio_publicacion|default:"S/A" }}
+                        </small>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="card-title text-capitalize mb-0">{{ libro.titulo }}</h5>
+                        <span class="badge-biblioteca {% if libro.disponible %}badge-disponible{% else %}badge-agotado{% endif %}">
+                            {% if libro.disponible %}En Estante{% else %}Agotado{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="mt-auto">
+                        <hr class="opacity-10">
+                        <p class="small text-muted mb-0">Localización: Pasillo A-{{ loop.index }}</p>
+                    </div>
+                </div> </div> </div> {% endfor %}
+
+        <div class="col">
+            <div class="card h-100 card-add d-flex align-items-center justify-content-center p-4">
+                <div class="text-center">
+                    <h5 class="card-title text-muted mb-3">Nuevo Registro</h5>
+                    <a href="{% url 'crear_libro' %}" class="btn btn-outline-dark btn-sm">
+                        ➕ Registrar Libro
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

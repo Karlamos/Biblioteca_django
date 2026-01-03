@@ -1,0 +1,152 @@
+{% extends "index.html" %}
+{% block contenido %}
+
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-viejo: #dcb273;
+        --papel-antiguo: #f4ece1;
+        --tinta-sepia: #5d4037;
+    }
+
+    .seccion-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 2px solid var(--dorado-viejo);
+        display: inline-block;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    /* Tarjeta estilo Placa de Autor */
+    .card-autor {
+        background-color: var(--papel-antiguo);
+        border: 1px solid #d7ccc8;
+        border-radius: 0;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Marco interno decorativo */
+    .card-autor::after {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 1px solid rgba(220, 178, 115, 0.3);
+        pointer-events: none;
+    }
+
+    .card-autor:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        background-color: #fffdfa;
+    }
+
+    .autor-nombre {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 1px solid var(--dorado-viejo);
+        padding-bottom: 5px;
+        margin-bottom: 15px;
+    }
+
+    /* Estilo para la biografía: Texto justificado y elegante */
+    .bio-text-scroll {
+        max-height: 120px;
+        overflow-y: auto;
+        font-family: 'Lora', serif;
+        font-style: italic;
+        color: var(--tinta-sepia);
+        line-height: 1.6;
+        text-align: justify;
+        padding-right: 10px;
+        margin-bottom: 20px;
+    }
+
+    /* Barra de scroll estilo vintage */
+    .bio-text-scroll::-webkit-scrollbar {
+        width: 4px;
+    }
+    .bio-text-scroll::-webkit-scrollbar-thumb {
+        background: var(--dorado-viejo);
+    }
+
+    /* Enlace de edición sutil */
+    .link-editar {
+        font-family: 'Courier New', monospace;
+        text-decoration: none;
+        color: var(--dorado-viejo);
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        transition: color 0.3s;
+    }
+
+    .link-editar:hover {
+        color: var(--madera-oscura);
+        text-decoration: underline;
+    }
+
+    /* Botón estilo Lacre o Cuero */
+    .btn-biblioteca {
+        background-color: var(--madera-oscura);
+        color: var(--dorado-viejo);
+        border: 1px solid var(--dorado-viejo);
+        border-radius: 0;
+        font-family: 'Playfair Display', serif;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+    }
+
+    .btn-biblioteca:hover {
+        background-color: var(--dorado-viejo);
+        color: var(--madera-oscura);
+    }
+</style>
+
+<div class="container-fluid">
+    <h2 class="seccion-titulo">👤 Galería de Grandes Autores</h2>
+    <p class="text-muted fst-italic mb-5">"La posteridad es el archivo de las mentes ilustres."</p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for autor in autores %}
+        <div class="col">
+            <div class="card h-100 card-autor shadow-sm">
+                <div class="card-body d-flex flex-column p-4">
+                    
+                    <div class="d-flex justify-content-between align-items-baseline mb-2">
+                        <h4 class="autor-nombre">
+                            {{ autor.nombre }} <strong>{{ autor.apellido }}</strong>
+                        </h4>
+                        <span class="small text-muted" style="font-family: 'Courier New';">ID:{{ loop.index }}</span>
+                    </div>
+                    
+                    <div class="bio-text-scroll">
+                        <p class="mb-0">{{ autor.bibliografia|default:"No se dispone de registros biográficos en este tomo." }}</p>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <a href="{% url 'editar_autores' autor.id %}" class="link-editar">
+                            <i class="bi bi-pencil-square"></i> Corregir Registro
+                        </a>
+                    </div>
+                    
+                    <div class="mt-auto pt-2">
+                        <a href="#" class="btn btn-sm btn-biblioteca w-100">
+                            Explorar Obras de {{ autor.nombre }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
