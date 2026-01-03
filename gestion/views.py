@@ -19,7 +19,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from .models import Libro, Autor
 
-# 1. ESTA ES LA FUNCIÓN PARA LA URL NUEVA (La que busca en tiempo real)
+
 def buscar_libro_api(request):
     titulo = request.GET.get('titulo', '')
     isbn=request.POST.get('isbn_api')
@@ -45,7 +45,7 @@ def buscar_libro_api(request):
                 'autor': nombre_completo,
                 'anio': anio,
                 'genero': generos,
-                'isbn': isbn, # Enviamos el ISBN al navegador
+                'isbn': isbn,
                 'success': True
             })
     except Exception as e:
@@ -57,25 +57,23 @@ def crear_libro(request):
     autores = Autor.objects.all()
     if request.method == "POST":
         titulo = request.POST.get('titulo')
-        nombre_autor_api = request.POST.get('autor_api') # Viene de la búsqueda API
-        autor_id_manual = request.POST.get('autor')      # Viene del select manual
+        nombre_autor_api = request.POST.get('autor_api') 
+        autor_id_manual = request.POST.get('autor')     
         isbn_dato = request.POST.get('isbn_api')
 
         autor_obj = None
 
-        # PRIORIDAD 1: Si se usó la búsqueda de la API
         if nombre_autor_api:
             partes = nombre_autor_api.split(' ', 1)
             nom = partes[0]
             ape = partes[1] if len(partes) > 1 else "S/A"
-            # get_or_create lo busca; si no existe, lo registra en la tabla Autores
+
             autor_obj, _ = Autor.objects.get_or_create(nombre=nom, apellido=ape)
 
-        # PRIORIDAD 2: Si se seleccionó un autor manualmente de la lista
+
         elif autor_id_manual:
             autor_obj = get_object_or_404(Autor, id=autor_id_manual)
 
-        # GUARDADO FINAL DEL LIBRO
         if titulo and autor_obj:
             Libro.objects.create(
                 titulo=titulo,
@@ -84,10 +82,8 @@ def crear_libro(request):
                 anio_publicacion=request.POST.get('anio_api'),
                 genero=request.POST.get('genero_api'),
                 disponible=True
-                # Nota: En tu modelo no existe 'copias_disponibles', 
-                # así que usamos solo los campos que me mostraste.
             )
-            return redirect('lista_libros') # Va directo al catálogo
+            return redirect('lista_libros') 
 
     return render(request, 'gestion/templates/crear_libros.html', {'autores': autores})
 
@@ -129,8 +125,6 @@ def index(request):
 def lista_libros(request):
     libros = Libro.objects.all().order_by('-id') # El más nuevo primero
     return render(request, 'gestion/templates/libros.html', {'libros': libros})
-
-
 
 
 def editar_autores_old(request, id):
@@ -178,26 +172,21 @@ def crear_autores(request, id=None):
     return render(request,'gestion/templates/crear_autores.html', context)
 
 def lista_prestamos(request):
-    prestamos_registrados = Prestamo.objects.all().order_by('-id')
-    
-    # Agregamos lógica para que el diseño de tus "Fichas" funcione
-    hoy = timezone.now().date()
-    for p in prestamos_registrados:
-        # Creamos el atributo 'estado' que pide tu HTML
-        if p.fecha_devol:
-            p.estado = "Devuelto"
-        elif hoy > p.fecha_max:
-            p.estado = "Vencido"
-        else:
-            p.estado = "Vigente"
-            
-        # Mapeamos los nombres de fecha para tu diseño
-        p.fecha_vencimiento = p.fecha_max
-        p.fecha_prestamo = p.fecha_prestamos # El campo de tu modelo es fecha_prestamos
 
-    return render(request, 'gestion/templates/prestamos.html', {'prestamos': prestamos_registrados})
+    prestamos = Prestamo.objects.all().order_by('-id')
+    hoy = timezone.now().date()
+
+    for p in prestamos:
+
+        p.estado = "Devuelto" if p.fecha_devol else ("Vencido" if hoy > p.fecha_max else "Vigente")
+        p.fecha_prestamo_display = p.fecha_prestamos
+        p.fecha_vencimiento_display = p.fecha_max
+
+
+    return render(request, 'gestion/templates/prestamos.html', {'prestamos': prestamos})
 
 def crear_prestamos(request):
+
     if not request.user.has_perm('gestion.gestionar_prestamos'):
         return HttpResponseForbidden()
     
@@ -205,18 +194,17 @@ def crear_prestamos(request):
     usuarios = User.objects.all()
 
     if request.method == 'POST':
-        libro_id = request.POST.get('titulo') # Nombre del select en tu form
+        libro_id = request.POST.get('libro') 
         usuario_id = request.POST.get('usuario')
         
         if libro_id and usuario_id:
             libro = get_object_or_404(Libro, id=libro_id)
             usuario = get_object_or_404(User, id=usuario_id)
             
-            # Calculamos fechas
             hoy = timezone.now().date()
-            vencimiento = hoy + timedelta(days=15) # Plazo de 15 días
+            vencimiento = hoy + timedelta(days=15)
 
-            # Creamos el registro con los nombres de tu MODELO
+            # Crear el registro en la base de datos
             Prestamo.objects.create(
                 libro=libro,
                 usuario=usuario,
@@ -224,17 +212,16 @@ def crear_prestamos(request):
                 fecha_max=vencimiento
             )
 
-            # Marcamos el libro como no disponible
+            # Marcar libro como no disponible
             libro.disponible = False
             libro.save()
 
-            # REDIRECCIÓN AUTOMÁTICA
+            # Si esto funciona, verás un código 302 en la terminal y viajarás a la lista
             return redirect('lista_prestamos')
-            prestamos.save()
+        else:
+            # Esto imprimirá en tu terminal si falta algún dato
+            print(f"ERROR: Datos incompletos. Libro: {libro_id}, Usuario: {usuario_id}")
     
-    # IMPORTANTE: Asegúrate que 'lista_prestamos' sea el name en tu urls.py
-        return redirect('lista_prestamos')
-
     return render(request, 'gestion/templates/crear_prestamos.html', {
         'libros': libros, 
         'usuarios': usuarios, 
