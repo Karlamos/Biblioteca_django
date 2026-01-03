@@ -1,0 +1,41 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+
+
+<div class="row mt-4 g-4">
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5 class="card-title">Autores</h5>
+            <p class="text-secondary">Gestionar información de autores.</p>
+            <a href="{%url 'lista_autores'%}" class="btn btn-purple w-100">Abrir</button></a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5 class="card-title">Préstamos</h5>
+            <p class="text-secondary">Control de préstamos activos.</p>
+            <a href="{%url 'lista_prestamos'%}" class="btn btn-purple w-100">Abrir</button></a>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5 class="card-title">Multas</h5>
+            <p class="text-secondary">Administración de multas.</p>
+            <button class="btn btn-purple w-100">Abrir</button>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="card p-3">
+            <h5 class="card-title">Libros</h5>
+            <p class="text-secondary">Catálogo general de libros.</p>
+            <a href="{%url 'lista_libros'%}" class="btn btn-purple w-100">Abrir</button></a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

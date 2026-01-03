@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivo de la Biblioteca</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            /* Fondo color madera muy oscura / cuero */
+            background-color: #1a1412; 
+            color: #d7ccc8;
+            font-family: 'Lora', serif;
+        }
+
+        /* Sidebar con estilo de estantería de madera */
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background-color: #2d1f1a;
+            padding-top: 30px;
+            position: fixed;
+            border-right: 3px double #5d4037;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        }
+
+        .sidebar .menu-title {
+            color: #dcb273; /* Dorado viejo */
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            padding-left: 25px;
+            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #5d4037;
+            padding-bottom: 10px;
+            margin-right: 20px;
+        }
+
+        .sidebar a, .sidebar button {
+            text-decoration: none;
+            padding: 15px 25px;
+            display: block;
+            font-size: 1.05rem;
+            color: #bcaaa4;
+            transition: all .3s;
+            border-left: 4px solid transparent;
+            background: none;
+            border-top: none;
+            border-right: none;
+            border-bottom: none;
+            width: 100%;
+            text-align: left;
+        }
+
+        .sidebar a:hover, .sidebar button:hover {
+            background-color: #3e2723;
+            color: #fdfaf3;
+            border-left: 4px solid #dcb273;
+            padding-left: 30px;
+        }
+
+        /* Contenido */
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+            /* Textura sutil de papel de fondo */
+            background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png');
+            min-height: 100vh;
+            color: #3e2723; /* Texto oscuro para leer sobre fondo claro */
+            background-color: #f4ece1; /* Color crema/pergamino */
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', serif;
+            color: #2d1f1a;
+            border-bottom: 2px solid #dcb273;
+            display: inline-block;
+            margin-bottom: 30px;
+        }
+
+        /* Ajustes para las tarjetas que se hereden en los bloques */
+        .card {
+            background-color: #fffdfa;
+            border: 1px solid #d7ccc8;
+            border-radius: 0;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Botón estilo sello de lacre o cuero */
+        .btn-custom {
+            background-color: #5d4037;
+            color: #fdfaf3;
+            border-radius: 2px;
+            border: 1px solid #3e2723;
+            font-family: 'Playfair Display', serif;
+            padding: 8px 20px;
+        }
+
+        .btn-custom:hover {
+            background-color: #dcb273;
+            color: #2d1f1a;
+        }
+
+        form { margin: 0; }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <div class="menu-title">📜 El Archivo</div>
+
+        <a href="{% url 'lista_autores'%}">✍️ Autores</a>
+        <a href="{% url 'lista_libros' %}">📖 Catálogo de Libros</a>
+        <a href="{% url 'lista_prestamos' %}">📅 Préstamos</a>
+        <a href="{% url 'lista_multa' %}">⚖️ Multas</a>
+        
+        <div style="margin-top: 50px; border-top: 1px solid #5d4037; padding-top: 20px;">
+            {% if not user.is_authenticated %}
+                <a href="{% url 'login' %}">🔑 Ingresar al Sistema</a>
+            {% endif %}
+            
+            {% if user.is_authenticated %}
+                <form method="POST" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit">🚪 Cerrar Sesión</button>
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content">
+        <h1 class="mb-4">Dashboard de Gestión Bibliotecaria</h1>
+
+        <div class="container-fluid">
+            {% block contenido %}
+            <p>Bienvenido al registro central. Seleccione una sección del archivo en el menú lateral.</p>
+            {% endblock %}
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

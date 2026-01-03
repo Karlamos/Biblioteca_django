@@ -1,0 +1,158 @@
+{% extends "index.html" %}
+{% block contenido %}
+
+<style>
+    /* Contenedor principal con aire de pergamino/papel antiguo */
+    .biblioteca-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 40px;
+        background-color: #fdfaf3; /* Crema papel */
+        border: 1px solid #d2b48c;
+        box-shadow: 8px 8px 0px #3e2723; /* Sombra sólida tipo libro */
+        font-family: 'Georgia', serif;
+        color: #2c1e1a;
+    }
+
+    .biblioteca-header {
+        text-align: center;
+        border-bottom: 2px double #8d6e63;
+        margin-bottom: 30px;
+        padding-bottom: 10px;
+    }
+
+    .biblioteca-header h2 {
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: #5d4037;
+        margin: 0;
+    }
+
+    /* Estilo de los campos de entrada */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 8px;
+        color: #3e2723;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #a1887f;
+        background-color: #fff;
+        font-size: 1rem;
+        box-sizing: border-box;
+        border-radius: 4px;
+    }
+
+    /* Botones con estilo clásico */
+    .btn-biblioteca {
+        background-color: #5d4037;
+        color: #fdfaf3;
+        padding: 10px 20px;
+        border: none;
+        cursor: pointer;
+        font-family: 'Georgia', serif;
+        transition: background 0.3s;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+    }
+
+    .btn-biblioteca:hover {
+        background-color: #3e2723;
+    }
+
+    .btn-submit {
+        width: 100%;
+        margin-top: 20px;
+        padding: 15px;
+        font-size: 1rem;
+        background-color: #795548;
+    }
+
+    /* Cuadro de información de la API */
+    #info-libro {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #efebe9;
+        border-left: 4px solid #8d6e63;
+        min-height: 50px;
+        font-style: italic;
+        color: #4e342e;
+    }
+
+    .label-encontrado {
+        font-weight: bold;
+        color: #2e7d32; /* Un verde oscuro para éxito */
+    }
+</style>
+
+<div class="biblioteca-container">
+    <div class="biblioteca-header">
+        <h2>Registro de Tomos</h2>
+    </div>
+
+    <form method="POST" id="libro-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="id_titulo">Título del Libro:</label>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="id_titulo" name="titulo" placeholder="Ej: Don Quijote de la Mancha" required>
+                <button type="button" id="btn-buscar" class="btn-biblioteca">Consultar</button>
+            </div>
+        </div>
+        
+        <div id="info-libro">
+            Esperando entrada para consultar el archivo...
+        </div>
+
+        <input type="hidden" name="autor_api" id="id_autor_api">
+        <input type="hidden" name="anio_api" id="id_anio_api">
+        <input type="hidden" name="genero_api" id="id_genero_api">
+
+        <button type="submit" class="btn-biblioteca btn-submit">Añadir a la Colección</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('btn-buscar').onclick = function() {
+    let titulo = document.getElementById('id_titulo').value;
+    let infoDiv = document.getElementById('info-libro');
+    
+    if(!titulo) {
+        infoDiv.innerHTML = "Por favor, escriba un título primero.";
+        return;
+    }
+
+    infoDiv.innerHTML = "<em>Consultando los archivos de Open Library...</em>";
+
+    fetch(`/buscar-api/?titulo=${titulo}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            infoDiv.innerHTML = `
+                <span class="label-encontrado">Obra localizada:</span><br>
+                <strong>Autor:</strong> ${data.autor} <br>
+                <strong>Publicación:</strong> ${data.anio} <br>
+                <strong>Género:</strong> ${data.genero}
+            `;
+            document.getElementById('id_autor_api').value = data.autor;
+            document.getElementById('id_anio_api').value = data.anio;
+            document.getElementById('id_genero_api').value = data.genero;
+        } else {
+            infoDiv.innerHTML = "No se hallaron registros para este título en los archivos.";
+        }
+    })
+    .catch(error => {
+        infoDiv.innerHTML = "Error de conexión con la biblioteca digital.";
+    });
+};
+</script>
+
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "index.html" %}
+{% block contenido %}
+
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-viejo: #dcb273;
+        --papel-claro: #fdfaf3;
+        --tinta-azul: #1a237e;
+    }
+
+    .form-container {
+        max-width: 600px;
+        margin: 20px auto;
+        background-color: var(--papel-claro);
+        padding: 40px;
+        border: 1px solid #d7ccc8;
+        box-shadow: 8px 8px 0px rgba(62, 39, 35, 0.1);
+        position: relative;
+    }
+
+    /* Título estilo encabezado de documento oficial */
+    .form-title {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        text-align: center;
+        text-transform: uppercase;
+        border-bottom: 2px solid var(--dorado-viejo);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        letter-spacing: 2px;
+    }
+
+    /* Estilo para las etiquetas (Labels) */
+    label {
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: #5d4037;
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* Estilo para los inputs y selects (estilo manuscrito/oficina) */
+    .form-control-biblioteca {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 20px;
+        border: none;
+        border-bottom: 1px solid var(--dorado-viejo);
+        background-color: rgba(220, 178, 115, 0.05);
+        font-family: 'Lora', serif;
+        color: var(--tinta-azul); /* Color de tinta de bolígrafo */
+        font-style: italic;
+    }
+
+    .form-control-biblioteca:focus {
+        outline: none;
+        background-color: rgba(220, 178, 115, 0.1);
+        border-bottom: 2px solid var(--madera-oscura);
+    }
+
+    /* Botón estilo Sello de Oficina */
+    .btn-registrar {
+        background-color: var(--madera-oscura);
+        color: var(--dorado-viejo);
+        border: 2px solid var(--dorado-viejo);
+        padding: 12px 30px;
+        font-family: 'Playfair Display', serif;
+        text-transform: uppercase;
+        width: 100%;
+        letter-spacing: 1px;
+        transition: all 0.3s;
+        cursor: pointer;
+        margin-top: 10px;
+    }
+
+    .btn-registrar:hover {
+        background-color: var(--dorado-viejo);
+        color: var(--madera-oscura);
+    }
+
+    .decoracion-esquina {
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50px;
+        height: 50px;
+        border-top: 3px solid var(--dorado-viejo);
+        border-right: 3px solid var(--dorado-viejo);
+        opacity: 0.5;
+    }
+</style>
+
+<div class="container">
+    <div class="form-container">
+        <div class="decoracion-esquina"></div>
+        
+        <h2 class="form-title">📜 Registro de Salida de Tomos</h2>
+        <p class="text-center text-muted small mb-4 fst-italic">Complete la información para formalizar el préstamo.</p>
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_libro">📖 Seleccionar Obra:</label>
+                <select id="id_libro" name="libro" class="form-control-biblioteca" required>
+                    <option value="" disabled selected>— Elija un título del catálogo —</option>
+                    {% for libro in libros %}
+                        <option value="{{libro.id}}">{{libro.titulo}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_usuario">👤 Identificación del Usuario:</label>
+                <select id="id_usuario" name="usuario" class="form-control-biblioteca" required>
+                    <option value="" disabled selected>— Seleccionar miembro —</option>
+                    {% for usuario in usuarios %}
+                        <option value="{{usuario.id}}">{{usuario.username}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_fecha_prestamo">📅 Fecha de Expedición:</label>
+                <input type="date" id="id_fecha_prestamo" name="fecha_prestamo" class="form-control-biblioteca" value="{{fecha}}" required>
+            </div>
+
+            <button type="submit" class="btn-registrar">
+                Finalizar Registro de Préstamo
+            </button>
+        </form>
+        
+        <div class="mt-4 text-center">
+            <a href="{% url 'lista_prestamos' %}" style="color: var(--madera-oscura); font-size: 0.8rem; text-decoration: none; font-family: 'Courier New';">
+                « Volver al archivo central
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

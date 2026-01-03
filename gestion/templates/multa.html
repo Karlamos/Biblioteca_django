@@ -1,0 +1,172 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-apagado: #b08d57;
+        --papel-amarillo: #f9f1e7;
+        --tinta-roja: #8b0000;
+        --tinta-verde: #2d5a27;
+        --tinta-negra: #212121;
+    }
+
+    .archivo-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 2px solid var(--dorado-apagado);
+        padding-bottom: 15px;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+    }
+
+    /* Tarjeta estilo Recibo de Tesorería */
+    .card-recibo {
+        background-color: var(--papel-amarillo);
+        border: 1px solid #dcd0c0;
+        border-radius: 0; /* Recibos de papel no tienen esquinas redondeadas */
+        position: relative;
+        transition: all 0.3s ease;
+        /* Efecto de borde rasgado o doble línea clásica */
+        box-shadow: 2px 2px 0px #d2b48c;
+    }
+
+    .card-recibo:hover {
+        transform: rotate(-1deg) scale(1.02);
+        box-shadow: 10px 10px 20px rgba(0,0,0,0.1);
+        z-index: 10;
+    }
+
+    .card-recibo .monto-titulo {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.8rem;
+        color: var(--tinta-negra);
+        border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    /* Badge estilo Sello de Caucho */
+    .sello-estado {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        border: 3px double;
+        padding: 5px 10px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transform: rotate(15deg);
+        font-family: 'Courier New', monospace;
+        opacity: 0.8;
+    }
+
+    .sello-pendiente {
+        color: var(--tinta-roja);
+        border-color: var(--tinta-roja);
+    }
+
+    .sello-pagado {
+        color: var(--tinta-verde);
+        border-color: var(--tinta-verde);
+    }
+
+    /* Texto de detalle estilo máquina de escribir */
+    .detail-text-scroll {
+        font-family: 'Courier New', monospace;
+        background: rgba(255,255,255,0.4);
+        padding: 10px;
+        border: 1px inset #dcd0c0;
+        max-height: 80px;
+        overflow-y: auto;
+        font-size: 0.85rem;
+    }
+
+    /* Botones estilo Archivo */
+    .btn-archivo {
+        background-color: var(--madera-oscura);
+        color: var(--papel-amarillo);
+        border: none;
+        border-radius: 0;
+        font-family: 'Lora', serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .btn-archivo:hover {
+        background-color: var(--tinta-negra);
+        color: #fff;
+    }
+
+    .btn-detalle {
+        border: 1px solid var(--madera-oscura);
+        color: var(--madera-oscura);
+        background: transparent;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <h2 class="archivo-titulo">
+        ⚖️ Registro de Multas y Sanciones
+    </h2>
+    <p class="text-muted fst-italic mb-5">Registro de multas.</p>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        
+        {% for multa in multas %}
+        <div class="col">
+            <div class="card h-100 card-recibo p-3">
+                <div class="sello-estado {% if multa.estado == 'Pendiente' %}sello-pendiente{% else %}sello-pagado{% endif %}">
+                    {{ multa.estado }}
+                </div>
+
+                <div class="card-body d-flex flex-column">
+                    <div class="monto-titulo mb-3">
+                        $ {{ multa.monto }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-uppercase text-muted d-block">Debedor:</small>
+                        <span class="fw-bold">{{ multa.usuario.nombre }} {{ multa.usuario.apellido }}</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-uppercase text-muted d-block">Expedición:</small>
+                        <span>{{ multa.fecha_emision|date:"d/m/Y" }}</span>
+                    </div>
+
+                    <div class="detail-text-scroll mb-4">
+                        <strong>MOTIVO:</strong> {{ multa.motivo|default:"Incumplimiento de plazo de entrega."}}
+                    </div>
+                    
+                    <div class="mt-auto">
+                        {% if multa.estado == 'Pendiente' %}
+                        <a href="/multas/{{ multa.id }}/pagar" class="btn btn-archivo w-100">
+                            Liquidar Deuda
+                        </a>
+                        {% else %}
+                        <a href="/multas/{{ multa.id }}/detalle" class="btn btn-detalle btn-sm w-100">
+                            Ver Recibo Completo
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="col">
+            <div class="card h-100 border-0 bg-transparent d-flex align-items-center justify-content-center p-4" style="border: 2px dashed var(--dorado-apagado) !important;">
+                <div class="text-center">
+                    <h5 class="font-serif text-muted">Ajustes Administrativos</h5>
+                    <p class="small text-muted">Añadir multas.</p>
+                    <a href="/configuracion/multas" class="btn btn-outline-dark mt-2 btn-sm">
+                        ⚙️ Agregar
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+
+{% endblock %}
