@@ -36,6 +36,10 @@ urlpatterns = [
     path('multas/', lista_multa, name="lista_multa"),
     path('multas/nuevo/', crear_multa, name="crear_multa"),
     path('multas/nuevo/<int:prestamo_id>', crear_multa, name="crear_multa"),
+    path('prestamo/<int:id>/devolver/', devolver_prestamo, name='devolver_prestamo'),
+    path('prestamo/<int:id>/multar/', crear_multa, name='crear_multa'),
+
+
     
     #path con classview
     path('libros_view/', LibroListView.as_view(), name="libros_view"),

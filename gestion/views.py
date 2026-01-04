@@ -17,7 +17,7 @@ from datetime import timedelta
 import requests
 from django.shortcuts import render, redirect
 from django.http import JsonResponse
-from .models import Libro, Autor
+from .models import Libro, Autor,multa
 
 
 def buscar_libro_api(request):
@@ -204,7 +204,6 @@ def crear_prestamos(request):
             hoy = timezone.now().date()
             vencimiento = hoy + timedelta(days=15)
 
-            # Crear el registro en la base de datos
             Prestamo.objects.create(
                 libro=libro,
                 usuario=usuario,
@@ -212,14 +211,14 @@ def crear_prestamos(request):
                 fecha_max=vencimiento
             )
 
-            # Marcar libro como no disponible
+
             libro.disponible = False
             libro.save()
 
-            # Si esto funciona, verás un código 302 en la terminal y viajarás a la lista
+
             return redirect('lista_prestamos')
         else:
-            # Esto imprimirá en tu terminal si falta algún dato
+
             print(f"ERROR: Datos incompletos. Libro: {libro_id}, Usuario: {usuario_id}")
     
     return render(request, 'gestion/templates/crear_prestamos.html', {
@@ -227,7 +226,7 @@ def crear_prestamos(request):
         'usuarios': usuarios, 
         'fecha': timezone.now().date()
     })
-        
+
 def detalle_prestamo(request):
     pass
 
@@ -235,8 +234,47 @@ def lista_multa(request):
     multas =multa.objects.all()
     return render(request, 'gestion/templates/multa.html',{'multas': multas})
 
-def crear_multa(request):
-    pass
+
+@login_required
+def devolver_prestamo(request, id):
+    prestamo = get_object_or_404(Prestamo, id=id)
+
+    # marcar devolución
+    prestamo.fecha_devol = timezone.now().date()
+    prestamo.save()
+
+    # crear multa si hay retraso
+    if prestamo.dias_retraso > 0:
+        multa.objects.create(
+            prestamo=prestamo,
+            tipo='r'
+        )
+
+    # liberar libro
+    prestamo.libro.disponible = True
+    prestamo.libro.save()
+
+    return redirect('lista_prestamos')
+
+
+@login_required
+def crear_multa(request,id):
+   
+    prestamo = get_object_or_404(Prestamo, id=id)
+
+    if request.method == 'POST':
+        tipo = request.POST.get('tipo')
+
+        multa.objects.create(
+            prestamo=prestamo,
+            tipo=tipo
+        )
+
+        return redirect('lista_multa')
+
+    return render(request, 'gestion/templates/multar_prestamo.html', {
+        'prestamo': prestamo
+    })
 
 
 def registro(request):

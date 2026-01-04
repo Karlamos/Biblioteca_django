@@ -126,16 +126,16 @@
                     
                     <div class="mb-3">
                         <small class="text-uppercase text-muted d-block">Debedor:</small>
-                        <span class="fw-bold">{{ multa.usuario.nombre }} {{ multa.usuario.apellido }}</span>
+                        <span class="fw-bold">{{ multa.prestamo.usuario.get_full_name|default:multa.prestamo.usuario.username }}</span>
                     </div>
 
                     <div class="mb-3">
                         <small class="text-uppercase text-muted d-block">Expedición:</small>
-                        <span>{{ multa.fecha_emision|date:"d/m/Y" }}</span>
+                        <span>{{ multa.fecha|date:"d/m/Y" }}</span>
                     </div>
 
                     <div class="detail-text-scroll mb-4">
-                        <strong>MOTIVO:</strong> {{ multa.motivo|default:"Incumplimiento de plazo de entrega."}}
+                        <strong>MOTIVO:</strong> {{ multa.get_tipo_display }}
                     </div>
                     
                     <div class="mt-auto">
