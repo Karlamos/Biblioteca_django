@@ -1,0 +1,149 @@
+{% extends "index.html" %}
+
+{% block contenido %}
+
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-apagado: #b08d57;
+        --papel-amarillo: #f9f1e7;
+        --tinta-roja: #8b0000;
+        --tinta-negra: #212121;
+        --tinta-azul: #0d47a1;
+    }
+
+    .archivo-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 2px solid var(--dorado-apagado);
+        padding-bottom: 15px;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+    }
+
+    /* Contenedor tipo Carpeta de Archivo */
+    .expediente-container {
+        background-color: var(--papel-amarillo);
+        border: 1px solid #dcd0c0;
+        box-shadow: 5px 5px 15px rgba(0,0,0,0.1);
+        padding: 40px;
+        position: relative;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Sello superior */
+    .sello-accion {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        border: 3px double var(--tinta-roja);
+        color: var(--tinta-roja);
+        padding: 5px 15px;
+        font-weight: bold;
+        text-transform: uppercase;
+        transform: rotate(-5deg);
+        font-family: 'Courier New', monospace;
+        opacity: 0.7;
+    }
+
+    .info-label {
+        font-family: 'Courier New', monospace;
+        text-transform: uppercase;
+        color: #777;
+        font-size: 0.85rem;
+        display: block;
+    }
+
+    .info-valor {
+        font-family: 'Playfair Display', serif;
+        font-size: 1.4rem;
+        color: var(--tinta-negra);
+        border-bottom: 1px dotted var(--dorado-apagado);
+        margin-bottom: 20px;
+        display: block;
+    }
+
+    /* Botones de acción estilo catálogo antiguo */
+    .btn-multa {
+        font-family: 'Lora', serif;
+        text-transform: uppercase;
+        border-radius: 0;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .btn-multa:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    /* Colores específicos adaptados al tema */
+    .btn-atraso { background-color: #e0a800; color: white; } /* Ámbar */
+    .btn-dano { background-color: #5a82a0; color: white; }   /* Azul acero */
+    .btn-perdida { background-color: var(--tinta-roja); color: white; }
+
+</style>
+
+<div class="container mt-5">
+    <div class="expediente-container">
+        
+        <div class="sello-accion">Procesar Sanción</div>
+
+        <h2 class="archivo-titulo">📜 Multar Préstamo</h2>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <span class="info-label">Título del Ejemplar:</span>
+                <span class="info-valor">{{ prestamo.libro }}</span>
+            </div>
+            <div class="col-md-6">
+                <span class="info-label">Usuario Responsable:</span>
+                <span class="info-valor">{{ prestamo.usuario }}</span>
+            </div>
+        </div>
+
+        <hr style="border-top: 2px dashed var(--dorado-apagado);">
+        
+        <p class="text-center text-muted fst-italic mb-4">
+            Seleccione la naturaleza de la infracción para emitir el recibo:
+        </p>
+
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+
+            <div class="col-md-4">
+                <button name="tipo" value="r" class="btn btn-multa btn-atraso">
+                    ⏰ Atraso
+                </button>
+            </div>
+
+            <div class="col-md-4">
+                <button name="tipo" value="d" class="btn btn-multa btn-dano">
+                    📘 Daño
+                </button>
+            </div>
+
+            <div class="col-md-4">
+                <button name="tipo" value="p" class="btn btn-multa btn-perdida">
+                    ❌ Pérdida
+                </button>
+            </div>
+        </form>
+
+        <div class="mt-5 text-center">
+            <a href="javascript:history.back()" class="text-muted small" style="text-decoration: none;">
+                ← Volver al inventario de archivos
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

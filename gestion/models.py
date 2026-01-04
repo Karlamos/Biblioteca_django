@@ -46,14 +46,13 @@ class Prestamo(models.Model):
         hoy = timezone.now().date()
         fecha_ref = self.fecha_devol or hoy
         if fecha_ref > self.fecha_max:
-            return (fecha_ref - self.fecha_devol).days
+            return (fecha_ref - self.fecha_max).days
         else: 
             return 0
         
     @property
     def multa_retraso(self):
-        tarifa = 0.50
-        return self.dias_retraso * tarifa
+        return self.dias_retraso * 0.50
     
 class multa(models.Model):
     prestamo = models.ForeignKey(Prestamo, related_name="multas", on_delete=models.PROTECT)
@@ -62,10 +61,26 @@ class multa(models.Model):
     pagada = models.BooleanField(default=False)
     fecha = models.DateField(default=timezone.now)
     
-    def __str__(self):
-        return f"Multa{self.tipo} - {self.monto} - {self.prestamo}"
+
     def save(self, *args, **kwargs):
-        if self.tipo == 'r' and self.monto == 0:
-            self.monto = self.prestamo.multa_retaso
-        super().save(*args **kwargs)
+        # Solo calculamos el monto si es 0 (para no sobrescribir montos manuales)
+        if self.monto == 0:
+            if self.tipo == 'r':
+                # Corregido: era multa_retraso, no multa_retaso
+                self.monto = self.prestamo.multa_retraso
+            elif self.tipo == 'd':
+                self.monto = 5.00  # Precio fijo por deterioro
+            elif self.tipo == 'p':
+                self.monto = 20.00 # Precio fijo por pérdida
+        
+        super().save(*args, **kwargs)
+        
+@property
+def motivo_texto(self):
+    # Esto ayudará a que el HTML muestre el nombre real y no solo la letra 'r', 'p' o 'd'
+    return dict(self._meta.get_field('tipo').choices).get(self.tipo)
+    
+@property
+def estado(self):
+    return "Pagado" if self.pagada else "Pendiente"
 # Create your models here.
