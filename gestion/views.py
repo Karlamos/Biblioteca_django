@@ -166,6 +166,8 @@ def lista_prestamos(request):
         p.estado = "Devuelto" if p.fecha_devol else ("Vencido" if hoy > p.fecha_max else "Vigente")
         p.fecha_prestamo_display = p.fecha_prestamos
         p.fecha_vencimiento_display = p.fecha_max
+        p.multa_pendiente = p.multas.filter(pagada=False).exists()
+        p.multa_obj = p.multas.filter(pagada=False).first()
 
 
     return render(request, 'gestion/templates/prestamos.html', {'prestamos': prestamos})
@@ -253,6 +255,25 @@ def crear_multa(request,id):
     })
 
 
+def liquidar_multa(request, multa_id):
+    multa_obj = get_object_or_404(multa, id=multa_id)
+    
+    multa_obj.pagada = True
+    multa_obj.save()
+
+    prestamo = multa_obj.prestamo
+    if not prestamo.multas.filter(pagada=False).exists():
+        prestamo.estado = "Devuelto"
+        prestamo.save()
+
+    return redirect('lista_prestamos')  
+    
+    
+    
+    
+    
+    
+    
 def registro(request):
     if request.method=='POST':
         form = UserCreationForm(request.POST)

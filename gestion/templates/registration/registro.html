@@ -1,17 +1,156 @@
 {% extends "index.html" %}
 
 {% block contenido %}
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-viejo: #a67c00; /* Dorado con más contraste */
+        --papel-ficha: #fdfaf3;
+        --azul-tinta: #072d66;  /* Azul profundo para mejor lectura */
+        --rojo-alerta: #b71c1c;
+        --texto-etiqueta: #1a1a1a; /* Casi negro para máxima visibilidad */
+    }
 
-<h2>Registro de Usuario</h2>
-<form method='POST'>
-{{form.non_field_error}}
-    {%csrf_token%}
-    {{form.as_div}}
-    </br>
-    <button type="submit">Crear</button>
+    .registro-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px 15px;
+    }
 
-</form>
+    .ficha-registro {
+        max-width: 550px;
+        width: 100%;
+        background-color: var(--papel-ficha);
+        background-image: radial-gradient(#d7ccc8 1px, transparent 1px);
+        background-size: 20px 20px;
+        border: 2px solid #c5b9ac;
+        padding: 40px;
+        box-shadow: 12px 12px 20px rgba(62, 39, 35, 0.1);
+        position: relative;
+    }
 
+    .biblioteca-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 3px double var(--dorado-viejo);
+        padding-bottom: 10px;
+        margin-bottom: 30px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+    }
 
+    /* Espaciado de los campos de Django */
+    .ficha-registro form div {
+        margin-bottom: 25px;
+    }
 
+    /* Etiquetas de "Máquina" más visibles */
+    .ficha-registro label {
+        font-family: 'Courier New', monospace;
+        font-size: 0.95rem; /* Aumentado */
+        color: var(--texto-etiqueta);
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 700;
+    }
+
+    /* Texto manuscrito más nítido */
+    .ficha-registro input, 
+    .ficha-registro select, 
+    .ficha-registro textarea {
+        background: transparent;
+        border: none;
+        border-bottom: 2.5px solid var(--dorado-viejo);
+        font-family: 'Lora', serif;
+        font-style: italic;
+        color: var(--azul-tinta);
+        width: 100%;
+        padding: 8px 10px; /* Más espacio interno */
+        outline: none;
+        font-size: 1.15rem; /* Letra más grande */
+        transition: all 0.3s;
+    }
+
+    .ficha-registro input:focus {
+        border-bottom-color: var(--madera-oscura);
+        background-color: rgba(62, 39, 35, 0.03);
+    }
+
+    /* Textos de ayuda */
+    .helptext {
+        font-family: 'Courier New', monospace;
+        font-size: 0.75rem;
+        color: #5d6d6e; /* Un poco más oscuro */
+        display: block;
+        margin-top: 8px;
+        line-height: 1.2;
+    }
+
+    /* Errores resaltados */
+    .errorlist {
+        list-style: none;
+        padding: 10px;
+        font-family: 'Courier New', monospace;
+        color: var(--rojo-alerta);
+        font-size: 0.85rem;
+        font-weight: bold;
+        border: 1px solid var(--rojo-alerta);
+        background-color: rgba(183, 28, 28, 0.05);
+        margin-bottom: 15px;
+    }
+
+    .btn-biblioteca {
+        background-color: var(--madera-oscura);
+        color: #ffffff; /* Letras blancas para el botón */
+        border: none;
+        border-radius: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1.2rem;
+        font-weight: bold;
+        letter-spacing: 2px;
+        padding: 14px;
+        margin-top: 20px;
+        transition: all 0.3s;
+        cursor: pointer;
+        box-shadow: 0 4px 0px #1a0f0d;
+    }
+
+    .btn-biblioteca:hover {
+        background-color: #2d1b18;
+        transform: translateY(-2px);
+    }
+
+</style>
+
+<div class="container registro-container">
+    <div class="ficha-registro">
+        
+        <h2 class="biblioteca-titulo">Inscripción de Nuevo Usuario</h2>
+        
+        <form method="POST">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+                <div class="errorlist text-center">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+
+            {{ form.as_div }}
+
+            <button type="submit" class="btn btn-biblioteca w-100">
+                🖋️ PROTOCOLIZAR REGISTRO
+            </button>
+        </form>
+
+        <div class="mt-4 text-center">
+            <p class="label-maquina" style="font-size: 0.65rem; color: #7f8c8d; font-weight: normal;">
+                * La información proporcionada será archivada en los registros.
+            </p>
+        </div>
+    </div>
+</div>
 {% endblock %}

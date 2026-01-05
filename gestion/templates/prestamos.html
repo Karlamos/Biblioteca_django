@@ -107,8 +107,8 @@
 </style>
 
 <div class="container-fluid">
-    <h2 class="biblioteca-titulo">📖 Registro de Circulación</h2>
-    <p class="text-muted fst-italic mb-4">Control de salida y entrada de ejemplares del catálogo.</p>
+    <h2 class="biblioteca-titulo">📖 Registro de Prestamos</h2>
+    <p class="text-muted fst-italic mb-4">Control de salida y entrada de libros del catálogo.</p>
 
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for prestamo in prestamos %}
@@ -152,20 +152,33 @@
                     
                     <div class="mt-auto pt-4">
                         {% if prestamo.estado != 'Devuelto' %}
-                        <a href="{% url 'devolver_prestamo' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
-                            🖋️ Registrar Devolución
-                        </a>
-                        <p class="small text-muted"> </p>
-                        <a href="{% url 'crear_multa' prestamo.id %}" 
-                            class="btn btn-biblioteca w-100 shadow-sm">
-                            ⚠️ Multar
-                        </a>
-                        
+                            {% if prestamo.multa_pendiente %}
+                                <!-- Mostrar botón de multa pendiente -->
+                                <button class="btn btn-danger w-100 shadow-sm opacity-75" disabled 
+                                    title="Debe pagar la multa de ${{ prestamo.multa.monto }} antes de devolver">
+                                    🚫 Multa Pendiente (Pagar primero)
+                                </button>
+                            {% else %}
+                                <!-- Si no hay multa pendiente, mostrar botón de devolver -->
+                                <a href="{% url 'devolver_prestamo' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
+                                    🖋️ Registrar Devolución
+                                </a>
+                            {% endif %}
+                            
+                            {% if not prestamo.multas.all %}
+                                <p class="small text-muted"> </p>
+                                <!-- Mostrar botón para registrar multa si no hay multas asociadas -->
+                                <a href="{% url 'crear_multa' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
+                                    ⚠️ Multar
+                                </a>
+                            {% endif %}
                         {% else %}
-                        <button class="btn btn-secondary btn-sm w-100 opacity-50" disabled>
-                            Tomo Reincorporado
-                        </button>
+                            <!-- Si el préstamo está devuelto, mostrar el botón deshabilitado -->
+                            <button class="btn btn-secondary btn-sm w-100 opacity-50" disabled>
+                                Tomo Reincorporado
+                            </button>
                         {% endif %}
+
                     </div>
                 </div>
             </div>

@@ -128,6 +128,10 @@
                         <small class="text-uppercase text-muted d-block">Debedor:</small>
                         <span class="fw-bold">{{ multa.prestamo.usuario.get_full_name|default:multa.prestamo.usuario.username }}</span>
                     </div>
+                    <div class="mb-3">
+                        <small class="text-uppercase text-muted d-block">Libro:</small>
+                        <span>{{ multa.prestamo.libro.titulo }}</span>
+                    </div>
 
                     <div class="mb-3">
                         <small class="text-uppercase text-muted d-block">Expedición:</small>
@@ -140,9 +144,10 @@
                     
                     <div class="mt-auto">
                         {% if multa.estado == 'Pendiente' %}
-                        <a href="/multas/{{ multa.id }}/pagar" class="btn btn-archivo w-100">
+                        <a href="{% url 'liquidar_multa' multa.id %}" class="btn btn-archivo w-100">
                             Liquidar Deuda
                         </a>
+
                         {% else %}
                         <a href="/multas/{{ multa.id }}/detalle" class="btn btn-detalle btn-sm w-100">
                             Ver Recibo Completo

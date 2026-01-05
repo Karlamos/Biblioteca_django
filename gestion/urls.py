@@ -37,7 +37,7 @@ urlpatterns = [
     path('multas/nuevo/', crear_multa, name="crear_multa"),
     path('multas/nuevo/<int:prestamo_id>', crear_multa, name="crear_multa"),
     path('prestamo/<int:id>/multar/', crear_multa, name='crear_multa'),
-
+        path('multas/<int:multa_id>/pagar/', liquidar_multa, name='liquidar_multa'),
 
     
     #path con classview

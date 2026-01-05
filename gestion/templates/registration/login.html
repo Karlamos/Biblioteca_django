@@ -1,19 +1,133 @@
 {% extends "index.html" %}
+
 {% block contenido %}
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-viejo: #dcb273;
+        --papel-ficha: #fdfaf3;
+        --azul-tinta: #0d47a1;
+        --rojo-alerta: #b71c1c;
+    }
 
+    .biblioteca-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 3px double var(--dorado-viejo);
+        padding-bottom: 10px;
+        margin-bottom: 35px;
+        text-align: center;
+    }
 
-<h2> Iniciar Sesion </h2>
-{%if for.errors%}
-<p>Usuario o contraseña incorrectos</p>
-{%endif%}
-<form method='POST'>
-    {%csrf_token%}
-    <label for="id_username">Usuario: </label>
-    <input type="text" name="username" id="id_username" required></br>
+    /* Contenedor central para el login */
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px 15px;
+    }
 
-    <label for="id_password">Contraseña: </label>
-    <input type="password" name="password" id="id_password" required></br>
+    .card-ficha-login {
+        max-width: 400px;
+        width: 100%;
+        background-color: var(--papel-ficha);
+        background-image: linear-gradient(#e1d9cf 1px, transparent 1px);
+        background-size: 100% 1.5rem;
+        border: 1px solid #d7ccc8;
+        box-shadow: 6px 6px 0px rgba(62, 39, 35, 0.1);
+        padding: 30px;
+        position: relative;
+    }
 
-    <button type="submit">Entrar</button>
-</form>
+    .label-maquina {
+        font-family: 'Courier New', monospace;
+        font-size: 0.8rem;
+        color: #7f8c8d;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 5px;
+    }
+
+    /* Estilo para los inputs que simulan escritura manual */
+    .input-manuscrito {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid var(--dorado-viejo);
+        font-family: 'Lora', serif;
+        font-style: italic;
+        color: var(--azul-tinta);
+        width: 100%;
+        padding: 5px 10px;
+        margin-bottom: 25px;
+        outline: none;
+    }
+
+    .input-manuscrito:focus {
+        border-bottom-color: var(--madera-oscura);
+    }
+
+    .btn-biblioteca {
+        background-color: var(--madera-oscura);
+        color: var(--dorado-viejo);
+        border: none;
+        border-radius: 0;
+        font-family: 'Playfair Display', serif;
+        font-size: 1rem;
+        letter-spacing: 1px;
+        padding: 10px;
+        transition: all 0.3s;
+    }
+
+    .btn-biblioteca:hover {
+        background-color: #2d1b18;
+        color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .error-sello {
+        font-family: 'Courier New', monospace;
+        color: var(--rojo-alerta);
+        border: 2px solid var(--rojo-alerta);
+        padding: 10px;
+        text-align: center;
+        text-transform: uppercase;
+        font-weight: bold;
+        transform: rotate(-2deg);
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container login-container">
+    <div class="card-ficha-login">
+        <h2 class="biblioteca-titulo">Acceso de Personal</h2>
+        
+        {% if form.errors %}
+            <div class="error-sello">
+                ⚠️ Credenciales Incorrectas
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="id_username" class="label-maquina">Identificación de Usuario:</label>
+                <input type="text" name="username" id="id_username" class="input-manuscrito" required autocomplete="off">
+            </div>
+
+            <div class="mb-4">
+                <label for="id_password" class="label-maquina">Clave de Seguridad:</label>
+                <input type="password" name="password" id="id_password" class="input-manuscrito" required>
+            </div>
+
+            <button type="submit" class="btn btn-biblioteca w-100">
+                🖋️ Validar y Entrar
+            </button>
+        </form>
+        
+        <div class="mt-4 text-center">
+            <p class="label-maquina" style="font-size: 0.65rem;">Propiedad de la Biblioteca Central - Sistema de Archivos</p>
+        </div>
+    </div>
+</div>
 {% endblock %}

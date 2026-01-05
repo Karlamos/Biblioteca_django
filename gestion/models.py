@@ -38,7 +38,7 @@ class Prestamo(models.Model):
         )
     
     def __str__(self):
-        return f"prestamo de {self.Libro.titulo} a {self.usuario.username}"
+        return f"prestamo de {self.libro.titulo} a {self.usuario.username}"
     
     @property
     def dias_retraso(self):
