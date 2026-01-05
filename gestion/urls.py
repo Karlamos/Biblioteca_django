@@ -30,13 +30,12 @@ urlpatterns = [
     #prestamo
     path('prestamos/', lista_prestamos, name="lista_prestamos"),
     path('prestamos/nuevo/', crear_prestamos, name="crear_prestamos"),
-    path('prestamos/<int:id>', detalle_prestamo, name="detalle_prestamo"),
+    path('prestamos/<int:id>/devolver/',devolver_prestamo,name='devolver_prestamo'),
     
     #multas
     path('multas/', lista_multa, name="lista_multa"),
     path('multas/nuevo/', crear_multa, name="crear_multa"),
     path('multas/nuevo/<int:prestamo_id>', crear_multa, name="crear_multa"),
-    path('prestamo/<int:id>/devolver/', devolver_prestamo, name='devolver_prestamo'),
     path('prestamo/<int:id>/multar/', crear_multa, name='crear_multa'),
 
 
