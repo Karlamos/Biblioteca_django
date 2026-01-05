@@ -13,11 +13,10 @@ class Autor(models.Model):
         return f"{self.nombre} {self.apellido}"
     
 class Libro(models.Model):
-    titulo = models.CharField(max_length=200) # Más espacio
+    titulo = models.CharField(max_length=200) 
     autor = models.ForeignKey(Autor, related_name="libros", on_delete=models.PROTECT)
     disponible = models.BooleanField(default=True)
-    descripcion = models.TextField(blank=True, null=True) # Nuevo
-    genero = models.CharField(max_length=100, blank=True, null=True) # Nuevo
+    descripcion = models.TextField(blank=True, null=True) 
     anio_publicacion = models.CharField(max_length=4, blank=True, null=True)
     isbn = models.CharField(max_length=20, blank=True, null=True)
     
@@ -39,7 +38,7 @@ class Prestamo(models.Model):
         )
     
     def __str__(self):
-        return f"prestamo de {self,Libro} a {self.usuario}"
+        return f"prestamo de {self.Libro.titulo} a {self.usuario.username}"
     
     @property
     def dias_retraso(self):
@@ -63,24 +62,21 @@ class multa(models.Model):
     
 
     def save(self, *args, **kwargs):
-        # Solo calculamos el monto si es 0 (para no sobrescribir montos manuales)
         if self.monto == 0:
             if self.tipo == 'r':
-                # Corregido: era multa_retraso, no multa_retaso
                 self.monto = self.prestamo.multa_retraso
             elif self.tipo == 'd':
-                self.monto = 5.00  # Precio fijo por deterioro
+                self.monto = 5.00 
             elif self.tipo == 'p':
-                self.monto = 20.00 # Precio fijo por pérdida
+                self.monto = 20.00 
         
         super().save(*args, **kwargs)
         
-@property
-def motivo_texto(self):
-    # Esto ayudará a que el HTML muestre el nombre real y no solo la letra 'r', 'p' o 'd'
-    return dict(self._meta.get_field('tipo').choices).get(self.tipo)
-    
-@property
-def estado(self):
-    return "Pagado" if self.pagada else "Pendiente"
-# Create your models here.
+    @property
+    def motivo_texto(self):
+        return dict(self._meta.get_field('tipo').choices).get(self.tipo)
+        
+    @property
+    def estado(self):
+        return "Pagado" if self.pagada else "Pendiente"
+
