@@ -152,7 +152,7 @@
                     
                     <div class="mt-auto pt-4">
                         {% if prestamo.estado != 'Devuelto' %}
-                        <a href="/prestamos/{{ prestamo.id }}/devolver" class="btn btn-biblioteca w-100 shadow-sm">
+                        <a href="{% url 'devolver_prestamo' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
                             🖋️ Registrar Devolución
                         </a>
                         <p class="small text-muted"> </p>

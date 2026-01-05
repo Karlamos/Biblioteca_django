@@ -36,27 +36,21 @@ def buscar_libro_api(request):
             lista_isbn = libro.get('isbn', [])
             isbn = lista_isbn[0] if lista_isbn else "No disponible"
             
-            lista_generos = libro.get('subject', [])
-            generos = ", ".join(lista_generos[:3]) if lista_generos else "No especificado"
-            
             return JsonResponse({
                 'autor': nombre_completo,
                 'anio': anio,
-                'genero': generos,
                 'isbn': isbn,
                 'success': True
             })
     except Exception as e:
         print(f"Error: {e}")
-    
-    return JsonResponse({'success': False})
+        return JsonResponse({'success': False})
 
 def crear_libro(request):
     autores = Autor.objects.all()
     if request.method == "POST":
         titulo = request.POST.get('titulo')
-        nombre_autor_api = request.POST.get('autor_api') 
-        autor_id_manual = request.POST.get('autor')     
+        nombre_autor_api = request.POST.get('autor_api')    
         isbn_dato = request.POST.get('isbn_api')
 
         autor_obj = None
@@ -67,10 +61,6 @@ def crear_libro(request):
             ape = partes[1] if len(partes) > 1 else "S/A"
 
             autor_obj, _ = Autor.objects.get_or_create(nombre=nom, apellido=ape)
-
-
-        elif autor_id_manual:
-            autor_obj = get_object_or_404(Autor, id=autor_id_manual)
 
         if titulo and autor_obj:
             Libro.objects.create(
@@ -169,12 +159,10 @@ def crear_autores(request, id=None):
     return render(request,'gestion/templates/crear_autores.html', context)
 
 def lista_prestamos(request):
-
     prestamos = Prestamo.objects.all().order_by('-id')
     hoy = timezone.now().date()
 
     for p in prestamos:
-
         p.estado = "Devuelto" if p.fecha_devol else ("Vencido" if hoy > p.fecha_max else "Vigente")
         p.fecha_prestamo_display = p.fecha_prestamos
         p.fecha_vencimiento_display = p.fecha_max
@@ -207,15 +195,12 @@ def crear_prestamos(request):
                 fecha_prestamos=hoy,
                 fecha_max=vencimiento
             )
-
-
             libro.disponible = False
             libro.save()
 
 
             return redirect('lista_prestamos')
         else:
-
             print(f"ERROR: Datos incompletos. Libro: {libro_id}, Usuario: {usuario_id}")
     
     return render(request, 'gestion/templates/crear_prestamos.html', {
@@ -224,8 +209,6 @@ def crear_prestamos(request):
         'fecha': timezone.now().date()
     })
 
-def detalle_prestamo(request):
-    pass
 
 def lista_multa(request):
     multas =multa.objects.all()
@@ -235,19 +218,15 @@ def lista_multa(request):
 @login_required
 def devolver_prestamo(request, id):
     prestamo = get_object_or_404(Prestamo, id=id)
-
-    # marcar devolución
     prestamo.fecha_devol = timezone.now().date()
     prestamo.save()
 
-    # crear multa si hay retraso
     if prestamo.dias_retraso > 0:
         multa.objects.create(
             prestamo=prestamo,
             tipo='r'
         )
 
-    # liberar libro
     prestamo.libro.disponible = True
     prestamo.libro.save()
 

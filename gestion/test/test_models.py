@@ -39,8 +39,6 @@ class PrestamoModelTest(TestCase):
         if self.prestamo.dias_retraso > 0:
             self.assertGreater(self.prestamo.multa_retraso, 0)
         
-        
-
 
 class PrestamoUsuarioViewTest(TestCase):
     def setUp(self):
