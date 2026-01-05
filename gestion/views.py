@@ -22,7 +22,7 @@ from .models import Libro, Autor,multa
 
 def buscar_libro_api(request):
     titulo = request.GET.get('titulo', '')
-    isbn=request.POST.get('isbn_api')
+    isbn=request.GET.get('isbn_api')
     url = f"https://openlibrary.org/search.json?title={titulo}"
     
     try:
@@ -33,11 +33,9 @@ def buscar_libro_api(request):
             nombre_completo = libro.get('author_name', ['Autor Desconocido'])[0]
             anio = libro.get('first_publish_year', 'N/A')
             
-            # --- OBTENER ISBN ---
             lista_isbn = libro.get('isbn', [])
             isbn = lista_isbn[0] if lista_isbn else "No disponible"
             
-            # --- GÉNEROS ---
             lista_generos = libro.get('subject', [])
             generos = ", ".join(lista_generos[:3]) if lista_generos else "No especificado"
             
@@ -80,7 +78,6 @@ def crear_libro(request):
                 autor=autor_obj,
                 isbn=isbn_dato,
                 anio_publicacion=request.POST.get('anio_api'),
-                genero=request.POST.get('genero_api'),
                 disponible=True
             )
             return redirect('lista_libros') 
@@ -123,7 +120,7 @@ def index(request):
     return render(request,'gestion/templates/home.html', {'titulo':title})
 
 def lista_libros(request):
-    libros = Libro.objects.all().order_by('-id') # El más nuevo primero
+    libros = Libro.objects.all().order_by('-id') 
     return render(request, 'gestion/templates/libros.html', {'libros': libros})
 
 
@@ -202,7 +199,7 @@ def crear_prestamos(request):
             usuario = get_object_or_404(User, id=usuario_id)
             
             hoy = timezone.now().date()
-            vencimiento = hoy + timedelta(days=15)
+            vencimiento = hoy + timedelta(days=8)
 
             Prestamo.objects.create(
                 libro=libro,

@@ -155,10 +155,12 @@
                         <a href="/prestamos/{{ prestamo.id }}/devolver" class="btn btn-biblioteca w-100 shadow-sm">
                             🖋️ Registrar Devolución
                         </a>
+                        <p class="small text-muted"> </p>
                         <a href="{% url 'crear_multa' prestamo.id %}" 
-                            class="btn btn-danger btn-sm">
+                            class="btn btn-biblioteca w-100 shadow-sm">
                             ⚠️ Multar
                         </a>
+                        
                         {% else %}
                         <button class="btn btn-secondary btn-sm w-100 opacity-50" disabled>
                             Tomo Reincorporado
