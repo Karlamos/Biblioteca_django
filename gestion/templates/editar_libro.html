@@ -1,0 +1,130 @@
+{% extends "index.html" %}
+{% block contenido %}
+
+<style>
+    :root {
+        --madera-oscura: #3e2723;
+        --dorado-apagado: #b08d57;
+        --papel-amarillo: #f9f1e7;
+        --tinta-roja: #8b0000;
+        --tinta-verde: #2d5a27;
+        --tinta-negra: #212121;
+    }
+
+    .archivo-titulo {
+        font-family: 'Playfair Display', serif;
+        color: var(--madera-oscura);
+        border-bottom: 2px solid var(--dorado-apagado);
+        padding-bottom: 15px;
+        margin-bottom: 30px;
+        text-transform: uppercase;
+    }
+
+    .card-expediente {
+        background-color: var(--papel-amarillo);
+        border: 1px solid #dcd0c0;
+        border-radius: 0;
+        box-shadow: 3px 3px 0px #d2b48c;
+        padding: 30px;
+        max-width: 900px;
+        margin: auto;
+    }
+
+    .form-label {
+        font-family: 'Courier New', monospace;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        color: var(--tinta-negra);
+    }
+
+    .form-control,
+    textarea {
+        border-radius: 0;
+        border: 1px solid #a1887f;
+        background: rgba(255,255,255,0.6);
+        font-family: 'Courier New', monospace;
+    }
+
+    textarea {
+        min-height: 120px;
+    }
+
+    .seccion-autorizada {
+        background-color: #efebe9;
+        border: 1px dashed var(--dorado-apagado);
+        padding: 15px;
+        margin-top: 20px;
+    }
+
+    .btn-archivo {
+        background-color: var(--madera-oscura);
+        color: var(--papel-amarillo);
+        border-radius: 0;
+        text-transform: uppercase;
+        padding: 10px;
+    }
+
+    .btn-archivo:hover {
+        background-color: var(--tinta-negra);
+        color: #fff;
+    }
+
+    .btn-volver {
+        display: block;
+        text-align: center;
+        margin-top: 15px;
+        font-family: 'Courier New', monospace;
+        color: var(--madera-oscura);
+        text-decoration: none;
+    }
+</style>
+
+<div class="container-fluid">
+    <h2 class="archivo-titulo">
+        📁 Expediente del Libro: {{ libro.titulo }}
+    </h2>
+
+    <div class="card-expediente">
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Título</label>
+                <input type="text" name="titulo" value="{{ libro.titulo }}" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">ISBN</label>
+                <input type="text" name="isbn_api" value="{{ libro.isbn }}" class="form-control">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Año de Publicación</label>
+                <input type="text" name="anio_api" value="{{ libro.anio_publicacion }}" class="form-control">
+            </div>
+
+            {% if es_autorizado %}
+            <div class="seccion-autorizada">
+                <label class="form-label">📦 Stock en Bodega</label>
+                <input type="number" name="stock" value="{{ libro.stock }}" min="0" class="form-control">
+            </div>
+            {% endif %}
+
+            <div class="mb-4 mt-3">
+                <label class="form-label">Descripción</label>
+                <textarea name="descripcion" class="form-control">{{ libro.descripcion }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-archivo w-100">
+                💾 Guardar Cambios
+            </button>
+
+            <a href="{% url 'lista_libros' %}" class="btn-volver">
+                ← Volver al archivo de libros
+            </a>
+        </form>
+    </div>
+</div>
+
+{% endblock %}

@@ -148,36 +148,47 @@
                         {% if prestamo.notas %}
                             <br><span class="label-maquina">Observaciones:</span> {{ prestamo.notas }}
                         {% endif %}
+                        <div class="mt-2">
+                            <a href="{% url 'descargar_recibo_pdf' prestamo.id %}" target="_blank" class="btn btn-sm btn-danger">
+                                PDF Recibo
+                            </a>
+                        </div>
                     </div>
                     
                     <div class="mt-auto pt-4">
                         {% if prestamo.estado != 'Devuelto' %}
-                            {% if prestamo.multa_pendiente %}
-                                <!-- Mostrar botón de multa pendiente -->
-                                <button class="btn btn-danger w-100 shadow-sm opacity-75" disabled 
-                                    title="Debe pagar la multa de ${{ prestamo.multa.monto }} antes de devolver">
-                                    🚫 Multa Pendiente (Pagar primero)
-                                </button>
-                            {% else %}
-                                <!-- Si no hay multa pendiente, mostrar botón de devolver -->
-                                <a href="{% url 'devolver_prestamo' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
-                                    🖋️ Registrar Devolución
-                                </a>
-                            {% endif %}
                             
-                            {% if not prestamo.multas.all %}
-                                <p class="small text-muted"> </p>
-                                <!-- Mostrar botón para registrar multa si no hay multas asociadas -->
-                                <a href="{% url 'crear_multa' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
-                                    ⚠️ Multar
-                                </a>
+                            {% if perms.gestion.change_prestamo %}
+                                {% if prestamo.multa_pendiente %}
+                                    <button class="btn btn-danger w-100 shadow-sm opacity-75" disabled 
+                                        title="Debe pagar la multa antes de devolver">
+                                        🚫 Multa Pendiente (Pagar primero)
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'devolver_prestamo' prestamo.id %}" class="btn btn-biblioteca w-100 shadow-sm">
+                                        🖋️ Registrar Devolución
+                                    </a>
+                                {% endif %}
+                                
+                                
+                                {% if not prestamo.multas.all %}
+                                    <div class="mt-2"></div>
+                                    <a href="{% url 'crear_multa' prestamo.id %}" class="btn btn-outline-danger btn-sm w-100">
+                                        ⚠️ Multar
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <p class="small text-center text-muted mt-2">
+                                    Para devolver este libro, acérquese a ventanilla.
+                                </p>
                             {% endif %}
+
                         {% else %}
-                            <!-- Si el préstamo está devuelto, mostrar el botón deshabilitado -->
                             <button class="btn btn-secondary btn-sm w-100 opacity-50" disabled>
                                 Tomo Reincorporado
                             </button>
                         {% endif %}
+
 
                     </div>
                 </div>
@@ -185,6 +196,7 @@
         </div>
         {% endfor %}
 
+        {% if perms.gestion.add_prestamo %}
         <div class="col">
             <div class="card h-100 d-flex align-items-center justify-content-center text-center p-4" 
                  style="background: transparent; border: 2px dashed var(--dorado-viejo);">
@@ -197,6 +209,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         
     </div>
 </div>

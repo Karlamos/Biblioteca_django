@@ -130,6 +130,12 @@
                     <button type="submit">🚪 Cerrar Sesión</button>
                 </form>
             {% endif %}
+            {% if user.is_superuser %}
+                <a href="{% url 'registro_superusuario' %}" class="btn btn-warning mb-3">
+                    👤 <strong>Crear Nuevo Usuario</strong>
+                </a>
+            {% endif %}
+
         </div>
     </div>
 

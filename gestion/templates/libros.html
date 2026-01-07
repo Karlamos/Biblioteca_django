@@ -67,8 +67,9 @@
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
         {% for libro in libros %}
         <div class="col">
-            <div class="card h-100 card-tomo">
+            <div class="card h-100 card-tomo" style="{% if not libro.disponible %}opacity: 0.8; border-left: 5px solid #dc3545;{% endif %}">
                 <div class="card-body d-flex flex-column">
+                    
                     <div class="mb-3">
                         <small class="text-muted d-block">
                             <i class="bi bi-person-fill"></i> <strong>Autor:</strong> {{ libro.autor.nombre }} {{ libro.autor.apellido }}
@@ -85,11 +86,34 @@
                         </span>
                     </div>
 
+                    <div class="mb-3">
+                        <p class="mb-0">
+                            <strong>Stock actual:</strong> 
+                            {% if libro.stock > 0 %}
+                                <span style="color: green;">{{ libro.stock }} unidades</span>
+                            {% else %}
+                                <span style="color: red;">Agotado</span>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    {% if request.user.groups.all.0.name == 'Bodeguero' or request.user.groups.all.0.name == 'Admin' %}
+                    <div class="mt-2 p-2" style="background-color: #f8f9fa; border-radius: 5px; border: 1px dashed #d2b48c;">
+                        <a href="{% url 'editar_libro' libro.id %}" class="btn-biblioteca" style="text-decoration: none; display: block; text-align: center; font-size: 0.8rem; padding: 5px;">
+                            <i class="bi bi-pencil-square"></i> Editar Tomo y Stock
+                        </a>
+                    </div>
+                    {% endif %}
+
                     <div class="mt-auto">
                         <hr class="opacity-10">
-                        <p class="small text-muted mb-0">Localización: Pasillo A-{{ loop.index }}</p>
+                        <p class="small text-muted mb-0">Localización: Pasillo A-{{ forloop.counter }}</p>
                     </div>
-                </div> </div> </div> {% endfor %}
+                    
+                </div> 
+            </div> 
+        </div> 
+        {% endfor %}
 
         <div class="col">
             <div class="card h-100 card-add d-flex align-items-center justify-content-center p-4">
