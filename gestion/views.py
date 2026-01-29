@@ -18,9 +18,19 @@ from django.http import HttpResponse
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
-#pip install reportlab
-
+from django.views.decorators.csrf import csrf_exempt
+import json
 from django.core.exceptions import PermissionDenied
+
+#--- IMPORTACIONES PARA LA API DE ODOO ---
+from rest_framework import viewsets, status
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+from .serializers import LibroSerializer
+
+
+
 
 #reporte#
 def generar_pdf_prestamo(prestamo):
@@ -71,7 +81,6 @@ def descargar_recibo_pdf(request, prestamo_id):
 
 
 
-
 #grupos#
 class GrupoRequiredMixin(AccessMixin):
     """Requerir grupo específico"""
@@ -87,47 +96,139 @@ class SoloMisObjetosMixin:
     def get_queryset(self):
         return super().get_queryset().filter(usuario=self.request.user)
     
-    
-    
-    
-    
 
-#api openlibrary#
+
+
+#apis  
+class LibroViewSet(viewsets.ModelViewSet):
+    queryset = Libro.objects.all().order_by('-id')
+    serializer_class = LibroSerializer
+    #authentication_classes = [TokenAuthentication]
+    #permission_classes = [IsAuthenticated]
+    lookup_field = 'isbn'
+    def retrieve(self, request, *args, **kwargs):
+        isbn_input = kwargs.get('isbn')
+        isbn_limpio = "".join(filter(str.isdigit, isbn_input))
+        libro = Libro.objects.filter(isbn__icontains=isbn_limpio).first()
+
+        if libro:
+            serializer = self.get_serializer(libro)
+            data = serializer.data
+            data['fuente_datos'] = 'Django' 
+            return Response(data)
+
+        url_ol = f"https://openlibrary.org/api/books?bibkeys=ISBN:{isbn_limpio}&format=json&jscmd=data"
+        try:
+            response = requests.get(url_ol, timeout=5)
+            data_ol = response.json()
+            key = f"ISBN:{isbn_limpio}"
+
+            if key in data_ol:
+                book_info = data_ol[key]
+                autor_raw = book_info.get('authors', [{}])[0].get('name', 'Autor Desconocido')
+                partes = autor_raw.split(' ', 1)
+                nom = partes[0]
+                ape = partes[1] if len(partes) > 1 else "S/A"
+                autor_obj, _ = Autor.objects.get_or_create(nombre=nom, apellido=ape)
+
+                nuevo_libro = Libro.objects.create(
+                    titulo=book_info.get('title', 'Sin Título'),
+                    autor=autor_obj,
+                    isbn=isbn_limpio,
+                    anio_publicacion=str(book_info.get('publish_date', 'N/A')),
+                    fuente_datos='OpenLibrary',
+                    stock=1  
+                )
+                return Response(self.get_serializer(nuevo_libro).data, status=status.HTTP_201_CREATED)
+            
+            return Response({"error": "No existe :("}, status=404)
+
+        except Exception as e:
+            return Response({"error": "No se puede conectar con OpenLibrary"}, status=503)
+
+
+@csrf_exempt 
+def api_libro_isbn(request, isbn):
+    if request.method == "GET":
+        libro = Libro.objects.filter(isbn=isbn).first()
+        if libro:
+            return JsonResponse({
+                'encontrado': True,
+                'titulo': libro.titulo,
+                'autor_nombre': libro.autor.nombre,  
+                'autor_apellido': libro.autor.apellido,
+                'anio_publicacion': libro.anio_publicacion,
+                'descripcion': libro.descripcion,
+                'fuente_datos': libro.fuente_datos    
+            })
+        
+        return JsonResponse({'encontrado': False, 'fuente_datos': 'No encontrado'}, status=404)
+
+
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            if Libro.objects.filter(isbn=isbn).exists():
+                return JsonResponse({'status': 'ya existe'}, status=200)
+
+            partes = data.get('autor', 'Autor Desconocido').split(' ', 1)
+            nom = partes[0]
+            ape = partes[1] if len(partes) > 1 else "S/A"
+            
+            autor_obj, _ = Autor.objects.get_or_create(nombre=nom, apellido=ape)
+            
+            Libro.objects.create(
+                titulo=data.get('titulo'),
+                autor=autor_obj,
+                isbn=isbn,
+                anio_publicacion=data.get('anio'),
+                descripcion=data.get('descripcion'),
+                stock=1 
+            )
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
 def buscar_libro_api(request):
     titulo = request.GET.get('titulo', '')
-    isbn=request.GET.get('isbn_api')
-    url = f"https://openlibrary.org/search.json?title={titulo}"
+    url = f"https://openlibrary.org/search.json?q={titulo}&fields=title,author_name,first_publish_year,isbn,subject&limit=30"
     
     try:
-        response = requests.get(url).json()
-        if response.get('docs'):
-            libro = response['docs'][0]
+        response = requests.get(url, timeout=10).json()
+        docs = response.get('docs', [])
+        
+        if docs:
+            libro_seleccionado = None
+            isbn_encontrado = None
             
-            nombre_completo = libro.get('author_name', ['Autor Desconocido'])[0]
-            anio = libro.get('first_publish_year', 'N/A')
+            for doc in docs:
+                if doc.get('isbn') and len(doc['isbn']) > 0:
+                    libro_seleccionado = doc
+                    isbn_encontrado = doc['isbn'][0]
+                    break
             
-            lista_isbn = libro.get('isbn', [])
-            isbn = lista_isbn[0] if lista_isbn else "No disponible"
+            if not libro_seleccionado:
+                libro_seleccionado = docs[0]
+
+            nombre_completo = libro_seleccionado.get('author_name', ['Autor Desconocido'])[0]
+            anio = libro_seleccionado.get('first_publish_year', 'N/A')
+            genero = libro_seleccionado.get('subject', ['No especificado'])[0] if libro_seleccionado.get('subject') else 'No especificado'
             
             return JsonResponse({
                 'autor': nombre_completo,
                 'anio': anio,
-                'isbn': isbn,
+                'isbn': isbn_encontrado if isbn_encontrado else '',
+                'genero': genero,
                 'success': True
             })
     except Exception as e:
-        print(f"Error: {e}")
-        return JsonResponse({'success': False})
+        return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False})
 
 
 
-
-
-
-
-
-
-#libros
 def lista_libros(request):
     libros = Libro.objects.all().order_by('-id') 
     return render(request, 'gestion/templates/libros.html', {'libros': libros})
@@ -135,34 +236,47 @@ def crear_libro(request):
     autores = Autor.objects.all()
     es_bodeguero = request.user.groups.filter(name='Bodeguero').exists()
     es_admin = request.user.groups.filter(name='Admin').exists()
+    tiene_permiso_stock = es_bodeguero or es_admin
+
     if request.method == "POST":
         titulo = request.POST.get('titulo')
         nombre_autor_api = request.POST.get('autor_api')    
         isbn_dato = request.POST.get('isbn_api')
-        stock_valor = 0
-        if es_bodeguero or es_admin:
-            stock_valor = request.POST.get('stock', 0)
-        autor_obj = None
+        anio_dato = request.POST.get('anio_api')
+        descripcion_dato = request.POST.get('descripcion', '')
         
+        stock_input = request.POST.get('stock', '1')
+        stock_valor = int(stock_input) if stock_input and stock_input.isdigit() else 1
+        if not tiene_permiso_stock:
+            stock_valor = 1
+        autor_obj = None
         if nombre_autor_api:
+
             partes = nombre_autor_api.split(' ', 1)
             nom = partes[0]
             ape = partes[1] if len(partes) > 1 else "S/A"
-
             autor_obj, _ = Autor.objects.get_or_create(nombre=nom, apellido=ape)
 
         if titulo and autor_obj:
+            isbn_final = None
+            if isbn_dato and isbn_dato.strip() not in ["No disponible", "S/N", "", "N/A"]:
+                isbn_final = isbn_dato.strip()
+            
             Libro.objects.create(
                 titulo=titulo,
                 autor=autor_obj,
-                isbn=isbn_dato,
-                anio_publicacion=request.POST.get('anio_api'),
-                stock=stock_valor,
-                disponible=True
+                isbn=isbn_final,
+                anio_publicacion=anio_dato,
+                descripcion=descripcion_dato,
+                stock=int(stock_valor),
+                fuente_datos='OpenLibrary'
             )
-            return redirect('lista_libros') 
-
-    return render(request, 'gestion/templates/crear_libros.html', {'autores': autores, 'es_bodeguero': (es_bodeguero or es_admin)})
+            return redirect('lista_libros')
+    
+    return render(request, 'crear_libros.html', {
+        'autores': autores,
+        'es_bodeguero': tiene_permiso_stock
+    })
 
 def editar_libro(request, libro_id):
 

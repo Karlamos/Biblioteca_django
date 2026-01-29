@@ -17,16 +17,16 @@ class Libro(models.Model):
     autor = models.ForeignKey(Autor, related_name="libros", on_delete=models.PROTECT)
     disponible = models.BooleanField(default=True)
     descripcion = models.TextField(blank=True, null=True) 
-    anio_publicacion = models.CharField(max_length=4, blank=True, null=True)
+    anio_publicacion = models.CharField(max_length=10, blank=True, null=True) 
     stock = models.PositiveIntegerField(default=0)
-    isbn = models.CharField(max_length=20, blank=True, null=True)
-    
+    isbn = models.CharField(max_length=20, blank=True, null=True, unique=True) 
+    fuente_datos = models.CharField(max_length=50, default='Django')
     def __str__(self):
-      return f"{self.titulo} ({self.stock} unidades)"
+        return f"{self.titulo} (ISBN: {self.isbn})"
   
     def save(self, *args, **kwargs):
-        valor_stock = int(self.stock) if self.stock else 0
-        self.disponible = valor_stock > 0
+        self.stock = int(self.stock) if self.stock else 0
+        self.disponible = self.stock > 0
         super(Libro, self).save(*args, **kwargs)
 
 class Prestamo(models.Model):

@@ -1,8 +1,11 @@
-from django.urls import path
+from django.urls import path, include
 from .views import *
 from django.contrib.auth import views as auth_views
+from rest_framework.routers import DefaultRouter
 
 
+router = DefaultRouter()
+router.register(r'libros', LibroViewSet)
 urlpatterns = [
     path("", index, name="index"),
     
@@ -44,8 +47,13 @@ urlpatterns = [
     
     #path con classview
     path('libros_view/', LibroListView.as_view(), name="libros_view"),
-    
-    
     path('registro-super/', registro_superusuario, name='registro_superusuario'),
+
+
+    #odoo
+    path('api/libro/<str:isbn>/', api_libro_isbn, name='api_libro_isbn'),
+    path('api/', include(router.urls)),
+
+    path('prestamos/recibo/<int:id>/', descargar_recibo_pdf, name='descargar_recibo_pdf'),
 
 ]

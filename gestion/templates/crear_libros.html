@@ -40,7 +40,7 @@
         color: #3e2723;
     }
 
-    input[type="text"] {
+    input[type="text"], input[type="number"] {
         width: 100%;
         padding: 12px;
         border: 1px solid #a1887f;
@@ -107,6 +107,13 @@
                 <button type="button" id="btn-buscar" class="btn-biblioteca">Consultar</button>
             </div>
         </div>
+
+        {% if es_bodeguero %}
+        <div class="form-group">
+            <label for="id_stock">Cantidad de Unidades (Stock):</label>
+            <input type="number" id="id_stock" name="stock" value="0" min="0">
+        </div>
+        {% endif %}
         
         <div id="info-libro">
             Esperando entrada para consultar el archivo...
@@ -115,6 +122,7 @@
         <input type="hidden" name="autor_api" id="id_autor_api">
         <input type="hidden" name="anio_api" id="id_anio_api">
         <input type="hidden" name="genero_api" id="id_genero_api">
+        <input type="hidden" name="isbn_api" id="id_isbn_api">
 
         <button type="submit" class="btn-biblioteca btn-submit">Añadir a la Colección</button>
     </form>
@@ -136,15 +144,18 @@ document.getElementById('btn-buscar').onclick = function() {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            const isbnTexto = data.isbn ? data.isbn : 'No disponible';
             infoDiv.innerHTML = `
                 <span class="label-encontrado">Obra localizada:</span><br>
                 <strong>Autor:</strong> ${data.autor} <br>
                 <strong>Publicación:</strong> ${data.anio} <br>
-                <strong>Género:</strong> ${data.genero}
+                <strong>ISBN:</strong> ${isbnTexto} <br>
+                <strong>Género:</strong> ${data.genero || 'No especificado'}
             `;
             document.getElementById('id_autor_api').value = data.autor;
             document.getElementById('id_anio_api').value = data.anio;
             document.getElementById('id_genero_api').value = data.genero;
+            document.getElementById('id_isbn_api').value = data.isbn || '';  // ← Enviar vacío si no hay
         } else {
             infoDiv.innerHTML = "No se hallaron registros para este título en los archivos.";
         }
